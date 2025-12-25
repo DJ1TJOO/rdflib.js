@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { graph, Serializer } from "../../src/index";
+import { graph, Serializer } from "../../../src";
 
 describe("Serializer", () => {
 	describe("can make up prefixes", () => {
