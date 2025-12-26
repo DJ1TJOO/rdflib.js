@@ -1156,13 +1156,15 @@ _:patch
     switch (contentType) {
       case 'text/xml':
       case 'application/rdf+xml':
-        documentString = sz.statementsToXML(data)
+        // @TODO(serializer-refactor): This assumption was already made, but is not safe since Quad Subjects/Predicates/Objects are missing toNt method, and elements for Collections
+        documentString = sz.statementsToXML(data as Statement[])
         break
       case 'text/n3':
       case 'text/turtle':
       case 'application/x-turtle': // Legacy
       case 'application/n3': // Legacy
-        documentString = sz.statementsToN3(data)
+        // @TODO(serializer-refactor): This assumption was already made, but is not safe since Quad Subjects/Predicates/Objects are missing toNt method, and elements for Collections
+        documentString = sz.statementsToN3(data as Statement[])  
         break
       default:
         throw new Error('Content-type ' + contentType +
