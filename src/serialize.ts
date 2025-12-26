@@ -23,7 +23,7 @@ export default function serialize (
   target: Formula | NamedNode | BlankNode | null,
   /** The store */
   kb: Formula,
-  base?: unknown,
+  base?: string | null,
   /**
    * The mime type.
    * Defaults to Turtle.

@@ -83,7 +83,7 @@ export class Serializer {
     this.xsd = createXSD(this.rdfFactory)
   }
 
-  setBase(base: string | null) {
+  setBase(base: string | null = null) {
     this.base = base
     return this
   }
