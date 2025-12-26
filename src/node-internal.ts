@@ -1,5 +1,5 @@
-import { ValueType, Bindings, FromValueReturns, TermType } from './types'
-import { Term } from './tf-types'
+import { Term } from './tf-types';
+import { Bindings, FromValueReturns, TermType, ValueType } from './types';
 
 /**
  * The superclass of all RDF Statement objects, that is
@@ -9,7 +9,7 @@ import { Term } from './tf-types'
  * @link https://rdf.js.org/data-model-spec/#term-interface
  * @class Node
  */
-export default abstract class Node {
+export default abstract class Node implements Term {
   // Specified in './node.ts' to prevent circular dependency
   static fromValue: <T extends FromValueReturns>(value: ValueType) => T
   // Specified in './node.ts' to prevent circular dependency
