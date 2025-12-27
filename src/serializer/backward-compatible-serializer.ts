@@ -1,4 +1,4 @@
-import { IndexedFormula, NamedNode } from '..'
+import { NamedNode } from '..'
 import Formula from '../formula'
 import Node from '../node'
 import type serialize from '../serialize'
@@ -9,6 +9,7 @@ import { JSONLDSerializer } from './jsonld-serializer'
 import { N3Serializer } from './n3-serializer'
 import { NTriplesSerializer } from './ntriples-serializer'
 import { TextTermConverter } from './utils/text-term-converter'
+import { WriteStoreSerializer } from './write-store-serializer'
 import { XMLSerializer } from './xml-serializer'
 
 /**
@@ -62,6 +63,11 @@ export class BackwardCompatibleSerializer extends AbstractSerializer {
     return this.createSerializer(JSONLDSerializer)
   }
 
+  private createWriteStoreSerializer(): WriteStoreSerializer {
+    // @TODO(serializer-refactor): This assumption was already made, but is not safe since index is missing from Formula, and required for WriteStoreSerializer.writeStore to function
+    return this.createSerializer(WriteStoreSerializer as unknown as new (store: Formula) => WriteStoreSerializer)
+  }
+
   statementsToN3(sts: Statement[]): string {
     const serializer = this.createN3Serializer()
     return serializer.serialize(sts)
@@ -87,49 +93,8 @@ export class BackwardCompatibleSerializer extends AbstractSerializer {
   }
 
   writeStore(write: (s: string) => void) {
-    const kb = this.store
-    const fetcher = kb.fetcher
-    const session = fetcher && fetcher.appNode
-
-    // The core data
-    if (!(this.store instanceof IndexedFormula)) {
-      throw new Error('Store is not an IndexedFormula')
-    }
-
-    const sources = (this.store as IndexedFormula).index[3]
-    for (const s in sources) {
-      // -> assume we can use -> as short for log:semantics
-      const source = kb.fromNT(s)
-      if (session && source.equals(session)) continue
-      write(
-        '\n' +
-          this.atomicTermToN3(source) +
-          ' ' +
-          this.atomicTermToN3(kb.sym('http://www.w3.org/2000/10/swap/log#semantics')) +
-          ' { ' +
-          this.statementsToN3(kb.statementsMatching(undefined, undefined, undefined, source)) +
-          ' }.\n'
-      )
-    }
-
-    // The metadata from HTTP interactions:
-    kb.statementsMatching(undefined, kb.sym('http://www.w3.org/2007/ont/link#requestedURI')).forEach(
-      (st: Statement) => {
-        write('\n<' + st.object.value + '> log:metadata {\n')
-        const sts = kb.statementsMatching(undefined, undefined, undefined, st.subject)
-        write(this.statementsToN3(sts))
-        write('}.\n')
-      }
-    )
-
-    // Inferences we have made ourselves not attributable to anyone else
-    const metaSources: any[] = []
-    if (session) metaSources.push(session)
-    let metadata: Statement[] = []
-    metaSources.forEach(source => {
-      metadata = metadata.concat(kb.statementsMatching(undefined, undefined, undefined, source))
-    })
-    write(this.statementsToN3(metadata))
+    const serializer = this.createWriteStoreSerializer()
+    serializer.writeStore(write)
   }
 
   atomicTermToN3(expr: Node | DefaultGraph): string {
