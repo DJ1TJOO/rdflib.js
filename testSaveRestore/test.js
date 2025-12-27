@@ -10,7 +10,7 @@ var f = $rdf.fetcher(g)
 
 f.nowOrWhenFetched(prefix + 'a.ttl', undefined, function (ok, message) {
   f.nowOrWhenFetched(prefix + 'b.ttl', undefined, function (ok, message) {
-    var sz = new $rdf.Serializer(g)
+    var sz = new $rdf.WriteStoreSerializer(g)
     sz.writeStore(console.log)
   })
 })

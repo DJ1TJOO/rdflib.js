@@ -10,7 +10,7 @@ var util = require('util')
 var print = util.print
 var k = $rdf.graph()
 // var f = $rdf.fetcher(k)
-var z = $rdf.Serializer(k)
+var z = new $rdf.WriteStoreSerializer(k)
 z.writeStore(print)
 
 var s = k.sym('foo:')

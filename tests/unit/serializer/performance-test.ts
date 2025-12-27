@@ -3,10 +3,12 @@ import {
 	blankNode,
 	graph,
 	lit,
-	Serializer,
+	N3Serializer,
+	NTriplesSerializer,
 	st,
 	Statement,
 	sym,
+	XMLSerializer,
 } from "../../../src";
 
 describe("Serializer - Performance Tests", () => {
@@ -45,9 +47,10 @@ describe("Serializer - Performance Tests", () => {
 
 	function generateStatementsWithPrefixes(count: number) {
 		const kb = graph();
-		const serializer = Serializer(kb);
-		serializer.setPrefix("ex", "http://example.com/");
-		serializer.setPrefix("schema", "http://schema.org/");
+		const namespaces = {
+			ex: "http://example.com/",
+			schema: "http://schema.org/",
+		}
 		const statements: Statement[] = [];
 		for (let i = 0; i < count; i++) {
 			statements.push(
@@ -58,7 +61,7 @@ describe("Serializer - Performance Tests", () => {
 				)
 			);
 		}
-		return { kb, serializer, statements };
+		return { kb, namespaces, statements };
 	}
 
 	function generateStatementsWithBlankNodes(count: number) {
@@ -98,10 +101,10 @@ describe("Serializer - Performance Tests", () => {
 	describe("statementsToN3 performance", () => {
 		it("should serialize 100 statements quickly", () => {
 			const { kb, statements } = generateStatements(100);
-			const serializer = Serializer(kb);
+			const serializer = new N3Serializer(kb);
 
 			const start = performance.now();
-			const result = serializer.statementsToN3(statements);
+			const result = serializer.serialize(statements);
 			const end = performance.now();
 			const duration = end - start;
 
@@ -112,10 +115,10 @@ describe("Serializer - Performance Tests", () => {
 
 		it("should serialize 1,000 statements in reasonable time", () => {
 			const { kb, statements } = generateStatements(1000);
-			const serializer = Serializer(kb);
+			const serializer = new N3Serializer(kb);
 
 			const start = performance.now();
-			const result = serializer.statementsToN3(statements);
+			const result = serializer.serialize(statements);
 			const end = performance.now();
 			const duration = end - start;
 
@@ -126,10 +129,10 @@ describe("Serializer - Performance Tests", () => {
 
 		it("should serialize 10,000 statements in reasonable time", () => {
 			const { kb, statements } = generateStatements(10000);
-			const serializer = Serializer(kb);
+			const serializer = new N3Serializer(kb);
 
 			const start = performance.now();
-			const result = serializer.statementsToN3(statements);
+			const result = serializer.serialize(statements);
 			const end = performance.now();
 			const duration = end - start;
 
@@ -140,10 +143,10 @@ describe("Serializer - Performance Tests", () => {
 
 		it("should handle large literals efficiently", () => {
 			const { kb, statements } = generateLargeStatements(1000);
-			const serializer = Serializer(kb);
+			const serializer = new N3Serializer(kb);
 
 			const start = performance.now();
-			const result = serializer.statementsToN3(statements);
+			const result = serializer.serialize(statements);
 			const end = performance.now();
 			const duration = end - start;
 
@@ -157,11 +160,13 @@ describe("Serializer - Performance Tests", () => {
 		});
 
 		it("should handle prefixes efficiently", () => {
-			const { serializer, statements } =
+			const { kb, namespaces, statements } =
 				generateStatementsWithPrefixes(1000);
+			const serializer = new N3Serializer(kb);
+			serializer.setNamespaces(namespaces);
 
 			const start = performance.now();
-			const result = serializer.statementsToN3(statements);
+			const result = serializer.serialize(statements);
 			const end = performance.now();
 			const duration = end - start;
 
@@ -176,10 +181,10 @@ describe("Serializer - Performance Tests", () => {
 
 		it("should handle blank nodes efficiently", () => {
 			const { kb, statements } = generateStatementsWithBlankNodes(1000);
-			const serializer = Serializer(kb);
+			const serializer = new N3Serializer(kb);
 
 			const start = performance.now();
-			const result = serializer.statementsToN3(statements);
+			const result = serializer.serialize(statements);
 			const end = performance.now();
 			const duration = end - start;
 
@@ -194,10 +199,10 @@ describe("Serializer - Performance Tests", () => {
 
 		it("should handle rdf:type efficiently", () => {
 			const { kb, statements } = generateStatementsWithTypes(1000);
-			const serializer = Serializer(kb);
+			const serializer = new N3Serializer(kb);
 
 			const start = performance.now();
-			const result = serializer.statementsToN3(statements);
+			const result = serializer.serialize(statements);
 			const end = performance.now();
 			const duration = end - start;
 
@@ -210,7 +215,7 @@ describe("Serializer - Performance Tests", () => {
 
 		it("should handle many prefixes efficiently", () => {
 			const kb = graph();
-			const serializer = Serializer(kb);
+			const serializer = new N3Serializer(kb);
 
 			// Add many prefixes
 			for (let i = 0; i < 100; i++) {
@@ -229,7 +234,7 @@ describe("Serializer - Performance Tests", () => {
 			}
 
 			const start = performance.now();
-			const result = serializer.statementsToN3(statements);
+			const result = serializer.serialize(statements);
 			const end = performance.now();
 			const duration = end - start;
 
@@ -249,10 +254,10 @@ describe("Serializer - Performance Tests", () => {
 	describe("statementsToNTriples performance", () => {
 		it("should serialize 100 statements quickly", () => {
 			const { kb, statements } = generateStatements(100);
-			const serializer = Serializer(kb);
+			const serializer = new NTriplesSerializer(kb);
 
 			const start = performance.now();
-			const result = serializer.statementsToNTriples(statements);
+			const result = serializer.serialize(statements);
 			const end = performance.now();
 			const duration = end - start;
 
@@ -265,10 +270,10 @@ describe("Serializer - Performance Tests", () => {
 
 		it("should serialize 1,000 statements quickly", () => {
 			const { kb, statements } = generateStatements(1000);
-			const serializer = Serializer(kb);
+			const serializer = new NTriplesSerializer(kb);
 
 			const start = performance.now();
-			const result = serializer.statementsToNTriples(statements);
+			const result = serializer.serialize(statements);
 			const end = performance.now();
 			const duration = end - start;
 
@@ -281,10 +286,10 @@ describe("Serializer - Performance Tests", () => {
 
 		it("should serialize 10,000 statements efficiently", () => {
 			const { kb, statements } = generateStatements(10000);
-			const serializer = Serializer(kb);
+			const serializer = new NTriplesSerializer(kb);
 
 			const start = performance.now();
-			const result = serializer.statementsToNTriples(statements);
+			const result = serializer.serialize(statements);
 			const end = performance.now();
 			const duration = end - start;
 
@@ -297,10 +302,10 @@ describe("Serializer - Performance Tests", () => {
 
 		it("should handle large literals efficiently", () => {
 			const { kb, statements } = generateLargeStatements(1000);
-			const serializer = Serializer(kb);
+			const serializer = new NTriplesSerializer(kb);
 
 			const start = performance.now();
-			const result = serializer.statementsToNTriples(statements);
+			const result = serializer.serialize(statements);
 			const end = performance.now();
 			const duration = end - start;
 
@@ -315,10 +320,10 @@ describe("Serializer - Performance Tests", () => {
 
 		it("should handle blank nodes efficiently", () => {
 			const { kb, statements } = generateStatementsWithBlankNodes(1000);
-			const serializer = Serializer(kb);
+			const serializer = new NTriplesSerializer(kb);
 
 			const start = performance.now();
-			const result = serializer.statementsToNTriples(statements);
+			const result = serializer.serialize(statements);
 			const end = performance.now();
 			const duration = end - start;
 
@@ -333,7 +338,7 @@ describe("Serializer - Performance Tests", () => {
 
 		it("should serialize quads when flag 'q' is set", () => {
 			const kb = graph();
-			const serializer = Serializer(kb);
+			const serializer = new NTriplesSerializer(kb);
 			serializer.setFlags("q");
 
 			// Create statements with graph context (quads)
@@ -350,7 +355,7 @@ describe("Serializer - Performance Tests", () => {
 			}
 
 			const start = performance.now();
-			const result = serializer.statementsToNTriples(quadStatements);
+			const result = serializer.serialize(quadStatements);
 			const end = performance.now();
 			const duration = end - start;
 
@@ -366,10 +371,10 @@ describe("Serializer - Performance Tests", () => {
 	describe("statementsToXML performance", () => {
 		it("should serialize 100 statements quickly", () => {
 			const { kb, statements } = generateStatements(100);
-			const serializer = Serializer(kb);
+			const serializer = new XMLSerializer(kb);
 
 			const start = performance.now();
-			const result = serializer.statementsToXML(statements);
+			const result = serializer.serialize(statements);
 			const end = performance.now();
 			const duration = end - start;
 
@@ -380,10 +385,10 @@ describe("Serializer - Performance Tests", () => {
 
 		it("should serialize 1,000 statements in reasonable time", () => {
 			const { kb, statements } = generateStatements(1000);
-			const serializer = Serializer(kb);
+			const serializer = new XMLSerializer(kb);
 
 			const start = performance.now();
-			const result = serializer.statementsToXML(statements);
+			const result = serializer.serialize(statements);
 			const end = performance.now();
 			const duration = end - start;
 
@@ -394,10 +399,10 @@ describe("Serializer - Performance Tests", () => {
 
 		it("should serialize 10,000 statements in reasonable time", () => {
 			const { kb, statements } = generateStatements(10000);
-			const serializer = Serializer(kb);
+			const serializer = new XMLSerializer(kb);
 
 			const start = performance.now();
-			const result = serializer.statementsToXML(statements);
+			const result = serializer.serialize(statements);
 			const end = performance.now();
 			const duration = end - start;
 
@@ -410,10 +415,10 @@ describe("Serializer - Performance Tests", () => {
 
 		it("should handle large literals efficiently", () => {
 			const { kb, statements } = generateLargeStatements(1000);
-			const serializer = Serializer(kb);
+			const serializer = new XMLSerializer(kb);
 
 			const start = performance.now();
-			const result = serializer.statementsToXML(statements);
+			const result = serializer.serialize(statements);
 			const end = performance.now();
 			const duration = end - start;
 
@@ -427,11 +432,13 @@ describe("Serializer - Performance Tests", () => {
 		});
 
 		it("should handle prefixes efficiently", () => {
-			const { serializer, statements } =
+			const { kb, namespaces, statements } =
 				generateStatementsWithPrefixes(1000);
-
+			const serializer = new XMLSerializer(kb);
+			serializer.setNamespaces(namespaces);
+					
 			const start = performance.now();
-			const result = serializer.statementsToXML(statements);
+			const result = serializer.serialize(statements);
 			const end = performance.now();
 			const duration = end - start;
 
@@ -446,10 +453,10 @@ describe("Serializer - Performance Tests", () => {
 
 		it("should handle blank nodes efficiently", () => {
 			const { kb, statements } = generateStatementsWithBlankNodes(1000);
-			const serializer = Serializer(kb);
+			const serializer = new XMLSerializer(kb);
 
 			const start = performance.now();
-			const result = serializer.statementsToXML(statements);
+			const result = serializer.serialize(statements);
 			const end = performance.now();
 			const duration = end - start;
 
@@ -464,10 +471,10 @@ describe("Serializer - Performance Tests", () => {
 
 		it("should handle rdf:type efficiently", () => {
 			const { kb, statements } = generateStatementsWithTypes(1000);
-			const serializer = Serializer(kb);
+			const serializer = new XMLSerializer(kb);
 
 			const start = performance.now();
-			const result = serializer.statementsToXML(statements);
+			const result = serializer.serialize(statements);
 			const end = performance.now();
 			const duration = end - start;
 
@@ -482,7 +489,7 @@ describe("Serializer - Performance Tests", () => {
 
 		it("should handle many prefixes efficiently", () => {
 			const kb = graph();
-			const serializer = Serializer(kb);
+			const serializer = new XMLSerializer(kb);
 
 			// Add many prefixes
 			for (let i = 0; i < 100; i++) {
@@ -501,7 +508,7 @@ describe("Serializer - Performance Tests", () => {
 			}
 
 			const start = performance.now();
-			const result = serializer.statementsToXML(statements);
+			const result = serializer.serialize(statements);
 			const end = performance.now();
 			const duration = end - start;
 
