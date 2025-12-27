@@ -1,5 +1,5 @@
 import Formula from './formula'
-import Serializer from './serializer'
+import Serializer from './serializer/backward-compatible-serializer'
 import {
   ContentType,
   JSONLDContentType,

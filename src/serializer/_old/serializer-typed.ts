@@ -7,22 +7,61 @@
  */
 import * as ttl2jsonld from '@frogcat/ttl2jsonld'
 import solidNs from 'solid-namespace'
-import CanonicalDataFactory from './factories/canonical-data-factory'
-import * as Uri from './uri'
-import * as Util from './utils-js'
-import { createXSD } from './xsd'
+import { BlankNode, Collection, IndexedFormula, Literal, NamedNode, Variable } from '../../'
+import CanonicalDataFactory from '../../factories/canonical-data-factory'
+import { DataFactory } from '../../factories/factory-types'
+import Formula from '../../formula'
+import Node from '../../node'
+import Statement from '../../statement'
+import { DefaultGraph, NamedNode as TFNamedNode } from '../../tf-types'
+import { PredicateType, SubjectType } from '../../types'
+import * as Uri from '../../uri'
+import * as Util from '../../utils-js'
+import { createXSD } from '../../xsd'
 
-export default function createSerializer(store) {
+export default function createSerializer(store: Formula) {
   return new Serializer(store)
 }
 
+// Types for the Serializer
+interface Prefixes extends Record<string, string> {}
+interface Namespaces extends Record<string, string> {}
+interface NamespacesUsed extends Record<string, boolean> {}
+interface Incoming extends Record<string, SubjectType[]> {}
+interface Formulas extends Record<string, Formula> {}
+
+// Types for other methods
+interface RootSubjectsStats {
+  roots: SubjectType[]
+  subjects: Record<string, Statement[]>
+  rootsHash: Record<string, boolean>
+  incoming: Incoming
+}
+type Tree = NestedTree[]
+type NestedTree = string | NestedTree[]
+
 export class Serializer {
-  constructor(store) {
+  flags: string
+  base: string | null
+  prefixes: Prefixes
+  namespaces: Namespaces
+  defaultNamespace: string | null
+  namespacesUsed: NamespacesUsed
+  keywords: string[]
+  prefixchars: string
+  incoming: Incoming | null
+  formulas: Formulas
+  store: Formula
+  rdfFactory: DataFactory
+  xsd: ReturnType<typeof createXSD>
+
+  constructor(store: Formula) {
     this.flags = ''
     this.base = null
 
-    this.prefixes = [] // suggested prefixes
-    this.namespaces = [] // complementary
+    this.defaultNamespace = null
+    this.prefixes = {} // suggested prefixes
+    this.namespaces = {} // complementary
     const nsKeys = Object.keys(solidNs())
     for (const i in nsKeys) {
       const uri = solidNs()[nsKeys[i]]('')
@@ -34,17 +73,17 @@ export class Serializer {
     this.suggestPrefix('rdf', 'http://www.w3.org/1999/02/22-rdf-syntax-ns#') // XML code assumes this!
     this.suggestPrefix('xml', 'reserved:reservedForFutureUse') // XML reserves xml: in the spec.
 
-    this.namespacesUsed = [] // Count actually used and so needed in @prefixes
+    this.namespacesUsed = {} // Count actually used and so needed in @prefixes
     this.keywords = ['a'] // The only one we generate at the moment
     this.prefixchars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
     this.incoming = null // Array not calculated yet
-    this.formulas = [] // remembering original formulae from hashes
+    this.formulas = {} // remembering original formulae from hashes
     this.store = store
     this.rdfFactory = store.rdfFactory || CanonicalDataFactory
     this.xsd = createXSD(this.rdfFactory)
   }
 
-  setBase(base) {
+  setBase(base: string | null = null) {
     this.base = base
     return this
   }
@@ -55,26 +94,30 @@ export class Serializer {
    * Notable flags:
    *  - 'o': do not abbreviate to a prefixed name when the local part contains a dot
    */
-  setFlags(flags) {
+  setFlags(flags: string = '') {
     this.flags = flags || ''
     return this
   }
 
-  toStr(x) {
+  toStr(x: Node) {
     var s = x.toNT()
     if (x.termType === 'Graph') {
-      this.formulas[s] = x // remember as reverse does not work
+      this.formulas[s] = x as Formula // remember as reverse does not work
     }
     return s
   }
 
-  fromStr(s) {
+  fromStr(s: string) {
     if (s[0] === '{') {
-      var x = this.formulas[s]
-      if (!x) console.log('No formula object for ' + s)
+      var x = this.formulas[s] as Formula | undefined // @TODO(serializer-refactor): Should we enable "noUncheckedIndexedAccess": true
+      if (!x) {
+        console.log('No formula object for ' + s)
+        // @TODO(serializer-refactor): This is to prevent undefined errors, is this okay to throw an error?
+        throw new Error('No formula object for ' + s)
+      }
       return x
     }
-    return this.store.fromNT(s)
+    return this.store.fromNT(s) as Node // @TODO(serializer-refactor): Store fromNT should be typed
   }
 
   /**
@@ -83,7 +126,7 @@ export class Serializer {
    * @param namespaces
    * @return {Serializer}
    */
-  setNamespaces(namespaces) {
+  setNamespaces(namespaces: Namespaces) {
     for (var px in namespaces) {
       this.setPrefix(px, namespaces[px])
     }
@@ -95,7 +138,7 @@ export class Serializer {
    * @param prefix
    * @param uri
    */
-  setPrefix(prefix, uri) {
+  setPrefix(prefix: string, uri: string) {
     if (prefix.slice(0, 7) === 'default') return // Try to weed these out
     if (prefix.slice(0, 2) === 'ns') return //  From others inferior algos
     if (!prefix || !uri) return // empty strings not suitable
@@ -120,7 +163,7 @@ export class Serializer {
    ** These are only hints.  If two overlap, only one gets used
    ** There is therefore no guarantee in general.
    */
-  suggestPrefix(prefix, uri) {
+  suggestPrefix(prefix: string, uri: string) {
     if (prefix.slice(0, 7) === 'default') return // Try to weed these out
     if (prefix.slice(0, 2) === 'ns') return //  From others inferior algos
     if (!prefix || !uri) return // empty strings not suitable
@@ -130,7 +173,7 @@ export class Serializer {
   }
 
   // Takes a namespace -> prefix map
-  suggestNamespaces(namespaces) {
+  suggestNamespaces(namespaces: Namespaces) {
     for (var px in namespaces) {
       this.suggestPrefix(px, namespaces[px])
     }
@@ -158,7 +201,7 @@ export class Serializer {
           'Serializer integity error 2: ' +
             ns +
             ', ' +
-            this.prefixs[ns] +
+            this.prefixes[ns] +
             ', ' +
             this.namespaces[this.prefixes[ns]] +
             '!'
@@ -168,9 +211,9 @@ export class Serializer {
   }
 
   // Make up an unused prefix for a random namespace
-  makeUpPrefix(uri) {
+  makeUpPrefix(uri: string) {
     var p = uri
-    function canUseMethod(pp) {
+    function canUseMethod(this: Serializer, pp: string) {
       if (!this.validPrefix.test(pp)) return false // bad format
       if (pp === 'ns') return false // boring
       if (pp in this.namespaces) return false // already used
@@ -205,10 +248,10 @@ export class Serializer {
     for (var j = 0; ; j++) if (canUse(p.slice(0, 3) + j)) return p.slice(0, 3) + j
   }
 
-  rootSubjects(sts) {
-    var incoming = {}
-    var subjects = {}
-    var allBnodes = {}
+  rootSubjects(sts: Statement[]): RootSubjectsStats {
+    var incoming: RootSubjectsStats['incoming'] = {}
+    var subjects: RootSubjectsStats['subjects'] = {}
+    var allBnodes: Record<string, boolean> = {}
 
     /* This scan is to find out which nodes will have to be the roots of trees
      ** in the serialized form. This will be any symbols, and any bnodes
@@ -219,32 +262,34 @@ export class Serializer {
      */
     for (var i = 0; i < sts.length; i++) {
       var st = sts[i]
-      var checkMentions = function (x) {
-        if (!incoming.hasOwnProperty(x)) incoming[x] = []
-        incoming[x].push(st.subject) // List of things which will cause this to be printed
+      var checkMentionsMethod = function (this: Serializer, x: Node) {
+        if (!incoming.hasOwnProperty(this.toStr(x))) incoming[this.toStr(x)] = []
+        incoming[this.toStr(x)].push(st.subject) // List of things which will cause this to be printed
       }
+      var checkMentions = checkMentionsMethod.bind(this)
       var st2 = [st.subject, st.predicate, st.object]
       st2.map(function (y) {
         if (y.termType === 'BlankNode') {
           allBnodes[y.toNT()] = true
         } else if (y.termType === 'Collection') {
           y.elements.forEach(function (z) {
-            checkMentions(z) // bnodes in collections important
+            // @TODO(serializer-refactor): Types of Collection generic T do not match, but is not important for this method
+            checkMentions(z as Node) // bnodes in collections important
           })
         }
       })
-      checkMentions(sts[i].object)
+      checkMentions(sts[i].object as Node) // @TODO(serializer-refactor): Types of Collection generic T do not match, but is not important for this method
       var ss = subjects[this.toStr(st.subject)] // Statements with this as subject
       if (!ss) ss = []
       ss.push(st)
       subjects[this.toStr(st.subject)] = ss // Make hash. @@ too slow for formula?
     }
 
-    var roots = []
+    var roots: RootSubjectsStats['roots'] = []
     for (var xNT in subjects) {
       if (!subjects.hasOwnProperty(xNT)) continue
-      var y = this.fromStr(xNT)
-      if (y.termType !== 'BlankNode' || !incoming[y] || incoming[y].length !== 1) {
+      var y = this.fromStr(xNT) as SubjectType // @TODO(serializer-refactor): We know this is a SubjectType because we just created it
+      if (y.termType !== 'BlankNode' || !incoming[xNT] || incoming[xNT].length !== 1) {
         roots.push(y)
         continue
       }
@@ -252,7 +297,7 @@ export class Serializer {
     this.incoming = incoming // Keep for serializing @@ Bug for nested formulas
 
     // Now do the scan using existing roots
-    var rootsHash = {}
+    var rootsHash: RootSubjectsStats['rootsHash'] = {}
     for (var k = 0; k < roots.length; k++) {
       rootsHash[roots[k].toNT()] = true
     }
@@ -261,7 +306,7 @@ export class Serializer {
 
   // //////////////////////////////////////////////////////
 
-  toN3(f) {
+  toN3(f: Formula) {
     return this.statementsToN3(f.statements)
   }
 
@@ -271,7 +316,7 @@ export class Serializer {
   // Validate if a string is a valid PN_LOCAL per Turtle 1.1 spec
   // Allows dots inside the local name but not as trailing character
   // Also allows empty local names (for URIs ending in / or #)
-  isValidPNLocal(local) {
+  isValidPNLocal(local: string) {
     // Empty local name is valid (e.g., ex: for http://example.com/)
     if (local.length === 0) return true
 
@@ -291,7 +336,7 @@ export class Serializer {
     return true
   }
 
-  explicitURI(uri) {
+  explicitURI(uri: string) {
     if (this.flags.indexOf('r') < 0 && this.base) {
       uri = Uri.refTo(this.base, uri)
     } else if (this.flags.indexOf('u') >= 0) {
@@ -303,7 +348,7 @@ export class Serializer {
     return '<' + uri + '>'
   }
 
-  statementsToNTriples(sts) {
+  statementsToNTriples(sts: Statement[]) {
     var sorted = sts.slice()
     sorted.sort()
     var str = ''
@@ -311,12 +356,12 @@ export class Serializer {
     var self = this
     var kb = this.store
     var factory = this.rdfFactory
-    var termToNT = function (x) {
+    var termToNT = function (x: Node | DefaultGraph) {
       if (x.termType !== 'Collection') {
         return self.atomicTermToN3(x)
       }
-      var list = x.elements
-      var rest = kb.sym(rdfns + 'nill')
+      var list = (x as Collection).elements
+      var rest: SubjectType = kb.sym(rdfns + 'nill')
       for (var i = list.length - 1; i >= 0; i--) {
         var bnode = factory.blankNode()
         str += termToNT(bnode) + ' ' + termToNT(kb.sym(rdfns + 'first')) + ' ' + termToNT(list[i]) + '.\n'
@@ -330,7 +375,7 @@ export class Serializer {
       var s = ''
       s += termToNT(st.subject) + ' '
       s += termToNT(st.predicate) + ' '
-      s += termToNT(st.object) + ' '
+      s += termToNT(st.object as Node) + ' ' // @TODO(serializer-refactor): Types of Collection generic T do not match, but is not important for this method
       if (this.flags.indexOf('q') >= 0) {
         // Do quads not nrtiples
         s += termToNT(st.why) + ' '
@@ -341,15 +386,15 @@ export class Serializer {
     return str
   }
 
-  statementsToN3(sts) {
+  statementsToN3(sts: Statement[]) {
     var indent = 4
     var width = 80
     var kb = this.store
     // A URI Map alows us to put the type statemnts at the top.
     var uriMap = { 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type': 'aaa:00' }
-    var SPO = function (x, y) {
+    var SPO = function (x: Statement, y: Statement) {
       // Do limited canonicalization of bnodes
-      return Util.heavyCompareSPO(x, y, kb, uriMap)
+      return Util.heavyCompareSPO(x, y, kb, uriMap) as number // @TODO(serializer-refactor): Utils-js.heavyCompareSPO should be typed
     }
     sts.sort(SPO)
 
@@ -357,7 +402,7 @@ export class Serializer {
       this.defaultNamespace = this.base + '#'
     }
 
-    var predMap = {}
+    var predMap: Record<string, string> = {}
     if (this.flags.indexOf('s') < 0) {
       predMap['http://www.w3.org/2002/07/owl#sameAs'] = '='
     }
@@ -369,13 +414,13 @@ export class Serializer {
     }
     // //////////////////////// Arrange the bits of text
 
-    var spaces = function (n) {
+    var spaces = function (n: number) {
       var s = ''
       for (var i = 0; i < n; i++) s += ' '
       return s
     }
 
-    var treeToLine = function (tree) {
+    var treeToLine = function (tree: Tree) {
       var str = ''
       for (var i = 0; i < tree.length; i++) {
         var branch = tree[i]
@@ -398,7 +443,7 @@ export class Serializer {
     }
 
     // Convert a nested tree of lists and strings to a string
-    var treeToString = function (tree, level) {
+    var treeToString = function (tree: Tree, level?: number) {
       var str = ''
       var lastLength = 100000
       if (level === undefined) level = -1
@@ -454,10 +499,10 @@ export class Serializer {
 
     // //////////////////////////////////////////// Structure for N3
     // Convert a set of statements into a nested tree of lists and strings
-    function statementListToTreeMethod(statements) {
+    function statementListToTreeMethod(this: Serializer, statements: Statement[]): Tree {
       var stats = this.rootSubjects(statements)
       var roots = stats.roots
-      var results = []
+      var results: Tree = []
       for (var i = 0; i < roots.length; i++) {
         var root = roots[i]
         results.push(subjectTree(root, stats))
@@ -467,22 +512,23 @@ export class Serializer {
     var statementListToTree = statementListToTreeMethod.bind(this)
 
     // The tree for a subject
-    function subjectTree(subject, stats) {
-      if (subject.termType === 'BlankNode' && !stats.incoming[subject]) {
-        return objectTree(subject, stats, true).concat(['.']) // Anonymous bnode subject
+    function subjectTreeMethod(this: Serializer, subject: SubjectType, stats: RootSubjectsStats): Tree {
+      if (subject.termType === 'BlankNode' && !stats.incoming[this.toStr(subject)]) {
+        return [objectTree(subject, stats, true)].concat(['.']) // Anonymous bnode subject
       }
       return [termToN3(subject, stats)].concat([propertyTree(subject, stats)]).concat(['.'])
     }
+    var subjectTree = subjectTreeMethod.bind(this)
     // The property tree for a single subject or anonymous node
-    function propertyTreeMethod(subject, stats) {
-      var results = []
-      var lastPred = null
+    function propertyTreeMethod(this: Serializer, subject: SubjectType, stats: RootSubjectsStats): Tree {
+      var results: Tree = []
+      var lastPred: string | null = null
       var sts = stats.subjects[this.toStr(subject)] || [] // relevant statements
       if (typeof sts === 'undefined') {
         throw new Error('Cant find statements for ' + subject)
       }
 
-      var objects = []
+      var objects: Tree = []
       for (var i = 0; i < sts.length; i++) {
         var st = sts[i]
         if (st.predicate.uri === lastPred) {
@@ -495,7 +541,7 @@ export class Serializer {
           results.push(predMap[st.predicate.uri] ? predMap[st.predicate.uri] : termToN3(st.predicate, stats))
         }
         lastPred = st.predicate.uri
-        objects.push(objectTree(st.object, stats))
+        objects.push(objectTree(st.object as Node, stats)) // @TODO(serializer-refactor): Types of Collection generic T do not match, but is not important for this method
       }
       results = results.concat([objects])
       return results
@@ -503,11 +549,11 @@ export class Serializer {
 
     var propertyTree = propertyTreeMethod.bind(this)
 
-    function objectTreeMethod(obj, stats, force) {
+    function objectTreeMethod(this: Serializer, obj: Node, stats: RootSubjectsStats, force?: boolean): NestedTree {
       if (obj.termType === 'BlankNode' && (force || stats.rootsHash[obj.toNT()] === undefined)) {
         // if not a root
         if (stats.subjects[this.toStr(obj)]) {
-          return ['[', propertyTree(obj, stats), ']']
+          return ['[', propertyTree(obj as BlankNode, stats), ']']
         } else {
           return '[]'
         }
@@ -517,19 +563,19 @@ export class Serializer {
 
     var objectTree = objectTreeMethod.bind(this)
 
-    function termToN3Method(expr, stats) {
+    function termToN3Method(this: Serializer, expr: Node, stats: RootSubjectsStats): NestedTree {
       //
-      var i, res
+      var i, res: NestedTree
       switch (expr.termType) {
         case 'Graph':
           res = ['{']
-          res = res.concat(statementListToTree(expr.statements))
+          res = res.concat(statementListToTree((expr as Formula).statements))
           return res.concat(['}'])
 
         case 'Collection':
           res = ['(']
-          for (i = 0; i < expr.elements.length; i++) {
-            res.push([objectTree(expr.elements[i], stats)])
+          for (i = 0; i < (expr as Collection).elements.length; i++) {
+            res.push([objectTree((expr as Collection).elements[i], stats)])
           }
           res.push(')')
           return res
@@ -538,10 +584,10 @@ export class Serializer {
           return this.atomicTermToN3(expr)
       }
     }
-    Serializer.prototype.termToN3 = termToN3
+    // Serializer.prototype.termToN3 = termToN3 // @TODO(serializer-refactor): This is not used in the library, why is it here?
     var termToN3 = termToN3Method.bind(this)
 
-    function prefixDirectivesMethod() {
+    function prefixDirectivesMethod(this: Serializer) {
       var str = ''
       if (this.flags.indexOf('d') < 0 && this.defaultNamespace) {
         str += '@prefix : ' + this.explicitURI(this.defaultNamespace) + '.\n'
@@ -561,20 +607,21 @@ export class Serializer {
   // //////////////////////////////////////////// Atomic Terms
 
   //  Deal with term level things and nesting with no bnode structure
-  atomicTermToN3(expr, stats) {
+  atomicTermToN3(expr: Node | DefaultGraph) {
     switch (expr.termType) {
       case 'BlankNode':
       case 'Variable':
         return expr.toNT()
       case 'Literal':
-        var val = expr.value
+        var lit = expr as Literal
+        var val = lit.value
         if (typeof val !== 'string') {
           throw new TypeError('Value of RDF literal node must be a string')
         }
         // var val = expr.value.toString() // should be a string already
-        if (expr.datatype && this.flags.indexOf('x') < 0) {
+        if (lit.datatype && this.flags.indexOf('x') < 0) {
           // Supress native numbers
-          switch (expr.datatype.uri) {
+          switch (lit.datatype.uri) {
             case 'http://www.w3.org/2001/XMLSchema#integer':
               return val
 
@@ -591,18 +638,18 @@ export class Serializer {
             }
 
             case 'http://www.w3.org/2001/XMLSchema#boolean':
-              return expr.value === '1' ? 'true' : 'false'
+              return lit.value === '1' ? 'true' : 'false'
           }
         }
-        var str = this.stringToN3(expr.value, this.flags)
-        if (expr.language) {
-          str += '@' + expr.language
-        } else if (!expr.datatype.equals(this.xsd.string)) {
-          str += '^^' + this.atomicTermToN3(expr.datatype, stats)
+        var str = this.stringToN3(lit.value, this.flags)
+        if (lit.language) {
+          str += '@' + lit.language
+        } else if (!lit.datatype.equals(this.xsd.string)) {
+          str += '^^' + this.atomicTermToN3(lit.datatype)
         }
         return str
       case 'NamedNode':
-        return this.symbolToN3(expr)
+        return this.symbolToN3(expr as NamedNode)
       case 'DefaultGraph':
         return ''
       default:
@@ -616,12 +663,12 @@ export class Serializer {
 
   forbidden1 = new RegExp(/[\\"\b\f\r\v\t\n\u0080-\uffff]/gm)
   forbidden3 = new RegExp(/[\\"\b\f\r\v\u0080-\uffff]/gm)
-  stringToN3(str, flags) {
+  stringToN3(str: string, flags?: string) {
     if (!flags) flags = 'e'
     var res = ''
-    var i, j, k
-    var delim
-    var forbidden
+    var i: number, j: number, k: number
+    var delim: string
+    var forbidden: RegExp
     if (
       str.length > 20 && // Long enough to make sense
       str.slice(-1) !== '"' && // corner case'
@@ -663,7 +710,7 @@ export class Serializer {
   }
   //  A single symbol, either in  <> or namespace notation
 
-  symbolToN3(x) {
+  symbolToN3(x: NamedNode) {
     // c.f. symbolString() in notation3.py
     var uri = x.uri
     var j = uri.indexOf('#')
@@ -700,9 +747,19 @@ export class Serializer {
       }
 */
       if (canSplit) {
+        console.log(
+          'Can split',
+          namesp,
+          this.defaultNamespace,
+          this.flags,
+          this.flags.indexOf('d') < 0,
+          this.defaultNamespace &&
+            this.defaultNamespace === namesp &&
+            this.flags.indexOf('d') < 0
+        )
         if (this.defaultNamespace && this.defaultNamespace === namesp && this.flags.indexOf('d') < 0) {
           // d -> suppress default
-          if (this.flags.indexOf('k') >= 0 && this.keyords.indexOf(localid) < 0) {
+          if (this.flags.indexOf('k') >= 0 && this.keywords.indexOf(localid) < 0) {
             return localid
           }
           return ':' + localid
@@ -724,14 +781,19 @@ export class Serializer {
 
   // @para. write  - a function taking a single string to be output
   //
-  writeStore(write) {
+  writeStore(write: (s: string) => void) {
     var kb = this.store
     var fetcher = kb.fetcher
     var session = fetcher && fetcher.appNode
 
     // The core data
 
-    var sources = this.store.index[3]
+    // @TODO(serializer-refactor): This is a hack to get the types to work and safely cast the store, what is the best way to do this?
+    if (!(this.store instanceof IndexedFormula)) {
+      throw new Error('Store is not an IndexedFormula')
+    }
+
+    var sources = (this.store as IndexedFormula).index[3]
     for (var s in sources) {
       // -> assume we can use -> as short for log:semantics
       var source = kb.fromNT(s)
@@ -749,18 +811,22 @@ export class Serializer {
 
     // The metadata from HTTP interactions:
 
-    kb.statementsMatching(undefined, kb.sym('http://www.w3.org/2007/ont/link#requestedURI')).map(function (st) {
+    kb.statementsMatching(undefined, kb.sym('http://www.w3.org/2007/ont/link#requestedURI')).map(function (
+      this: Serializer,
+      st: Statement
+    ) {
       write('\n<' + st.object.value + '> log:metadata {\n')
       var sts = kb.statementsMatching(undefined, undefined, undefined, st.subject)
-      write(this.statementsToN3(this.statementsToN3(sts)))
+      // @TODO(serializer-refactor): This was originally written as this.statementsToN3(this.statementsToN3(sts)), which is not valid, was this a mistake?
+      write(this.statementsToN3(sts))
       write('}.\n')
     })
 
     // Inferences we have made ourselves not attributable to anyone else
 
-    var metaSources = []
+    var metaSources: TFNamedNode[] = []
     if (session) metaSources.push(session)
-    var metadata = []
+    var metadata: Statement[] = []
     metaSources.map(function (source) {
       metadata = metadata.concat(kb.statementsMatching(undefined, undefined, undefined, source))
     })
@@ -769,24 +835,24 @@ export class Serializer {
 
   // ////////////////////////////////////////////// XML serialization
 
-  statementsToXML(sts) {
+  statementsToXML(sts: Statement[]) {
     var indent = 4
     var width = 80
 
-    var namespaceCounts = [] // which have been used
+    var namespaceCounts: NamespacesUsed = {} // which have been used
     namespaceCounts['http://www.w3.org/1999/02/22-rdf-syntax-ns#'] = true
 
     var liPrefix = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#_' // prefix for ordered list items
 
     // //////////////////////// Arrange the bits of XML text
 
-    var spaces = function (n) {
+    var spaces = function (n: number) {
       var s = ''
       for (var i = 0; i < n; i++) s += ' '
       return s
     }
 
-    var XMLtreeToLine = function (tree) {
+    var XMLtreeToLine = function (tree: Tree) {
       var str = ''
       for (var i = 0; i < tree.length; i++) {
         var branch = tree[i]
@@ -797,9 +863,9 @@ export class Serializer {
     }
 
     // Convert a nested tree of lists and strings to a string
-    var XMLtreeToString = function (tree, level) {
+    var XMLtreeToString = function (tree: Tree, level?: number) {
       var str = ''
-      var line
+      var line: string
       var lastLength = 100000
       if (!level) level = 0
       for (var i = 0; i < tree.length; i++) {
@@ -834,11 +900,11 @@ export class Serializer {
       return str
     }
 
-    function statementListToXMLTreeMethod(statements) {
+    function statementListToXMLTreeMethod(this: Serializer, statements: Statement[]): Tree {
       this.suggestPrefix('rdf', 'http://www.w3.org/1999/02/22-rdf-syntax-ns#')
       var stats = this.rootSubjects(statements)
       var roots = stats.roots
-      var results = []
+      var results: Tree = []
       for (var i = 0; i < roots.length; i++) {
         var root = roots[i]
         results.push(subjectXMLTree(root, stats))
@@ -847,7 +913,7 @@ export class Serializer {
     }
     var statementListToXMLTree = statementListToXMLTreeMethod.bind(this)
 
-    function escapeForXML(str) {
+    function escapeForXML(str: string) {
       if (typeof str === 'undefined') return '@@@undefined@@@@'
       return str.replace(/[&<"]/g, function (m) {
         switch (m[0]) {
@@ -857,19 +923,22 @@ export class Serializer {
             return '&lt;'
           case '"':
             return '&quot;' // '
+          default: // @TODO(serializer-refactor): Should not be reachable, but is to prevent TypeScript from complaining
+            return ''
         }
       })
     }
 
-    function relURIMethod(term) {
+    function relURIMethod(this: Serializer, term: NamedNode | Variable) {
       return escapeForXML(this.base ? Util.uri.refTo(this.base, term.uri) : term.uri)
     }
     var relURI = relURIMethod.bind(this)
 
     // The tree for a subject
-    function subjectXMLTreeMethod(subject, stats) {
-      var results = []
-      var type, t, st, pred
+    // @TODO(serializer-refactor): Subject is Node type, but should be SubjectType, if not in subjects, returns [] from propertyXMLTree
+    function subjectXMLTreeMethod(this: Serializer, subject: Node, stats: RootSubjectsStats): Tree {
+      var results: Tree = []
+      var type: NamedNode | undefined, t, st: Statement, pred: PredicateType
       var sts = stats.subjects[this.toStr(subject)] // relevant statements
       if (typeof sts === 'undefined') {
         // empty bnode
@@ -895,7 +964,8 @@ export class Serializer {
         var bs = bp.substring(liPrefix.length)
         var an = parseInt(as, 10)
         var bn = parseInt(bs, 10)
-        if (isNaN(an) || isNaN(bn) || an !== as || bn !== bs) {
+        // @TODO(serializer-refactor): Checks if the strings are actually pure integer (no leading zeros, decimals, or trailing non-numeric)
+        if (isNaN(an) || isNaN(bn) || an.toString() !== as || bn.toString() !== bs) {
           // we only care about integers
           return ap.localeCompare(bp)
         }
@@ -931,7 +1001,7 @@ export class Serializer {
         t = qname(pred)
         switch (st.object.termType) {
           case 'BlankNode':
-            if (stats.incoming[st.object].length === 1) {
+            if (stats.incoming[this.toStr(st.object)].length === 1) {
               // there should always be something in the incoming array for a bnode
               results = results.concat([
                 '<' + t + ' rdf:parseType="Resource">',
@@ -977,21 +1047,21 @@ export class Serializer {
 
       var attrs = ''
       if (subject.termType === 'BlankNode') {
-        if (!stats.incoming[subject] || stats.incoming[subject].length !== 1) {
+        if (!stats.incoming[this.toStr(subject)] || stats.incoming[this.toStr(subject)].length !== 1) {
           // not an anonymous bnode
           attrs = ' rdf:nodeID="' + subject.toNT().slice(2) + '"'
         }
       } else {
-        attrs = ' rdf:about="' + relURI(subject) + '"'
+        attrs = ' rdf:about="' + relURI(subject as NamedNode | Variable) + '"'
       }
 
-      return ['<' + tag + attrs + '>'].concat([results]).concat(['</' + tag + '>'])
+      return (['<' + tag + attrs + '>'] as Tree).concat([results]).concat(['</' + tag + '>'])
     }
 
     var subjectXMLTree = subjectXMLTreeMethod.bind(this)
 
-    function collectionXMLTree(subject, stats) {
-      var res = []
+    function collectionXMLTree(subject: Collection, stats: RootSubjectsStats): Tree {
+      var res: Tree = []
       for (var i = 0; i < subject.elements.length; i++) {
         res.push(subjectXMLTree(subject.elements[i], stats))
       }
@@ -999,8 +1069,9 @@ export class Serializer {
     }
 
     // The property tree for a single subject or anonymos node
-    function propertyXMLTreeMethod(subject, stats) {
-      var results = []
+    // @TODO(serializer-refactor): Subject is Node type, but should be SubjectType, if not in subjects, returns []
+    function propertyXMLTreeMethod(this: Serializer, subject: Node, stats: RootSubjectsStats): Tree {
+      var results: Tree = []
       var sts = stats.subjects[this.toStr(subject)] // relevant statements
       if (!sts) return results // No relevant statements
       sts.sort()
@@ -1033,7 +1104,7 @@ export class Serializer {
                   ? ' xml:lang="' + st.object.language + '"'
                   : st.object.datatype.equals(this.xsd.string)
                   ? ''
-                  : ' rdf:datatype="' + escapeForXML(st.object.datatype.value) + '"') +
+                  : ' rdf:datatype="' + escapeForXML(st.object.datatype.uri) + '"') +
                 '>' +
                 escapeForXML(st.object.value) +
                 '</' +
@@ -1056,7 +1127,7 @@ export class Serializer {
     }
     var propertyXMLTree = propertyXMLTreeMethod.bind(this)
 
-    function qnameMethod(term) {
+    function qnameMethod(this: Serializer, term: NamedNode | Variable) {
       var uri = term.uri
 
       var j = uri.indexOf('#')
@@ -1102,7 +1173,7 @@ export class Serializer {
     return XMLtreeToString(tree2, -1)
   } // End @@ body
 
-  statementsToJsonld(sts) {
+  statementsToJsonld(sts: Statement[]) {
     // ttl2jsonld creates context keys for all ttl prefix
     // context keys must be absolute IRI ttl2jsonld@0.0.8
     /* function findId (itemObj) {
@@ -1118,21 +1189,21 @@ export class Serializer {
       }
     } */
     const turtleDoc = this.statementsToN3(sts)
-    const jsonldObj = ttl2jsonld.parse(turtleDoc)
+    const jsonldObj = ttl2jsonld.parse(turtleDoc) as Object
     return JSON.stringify(jsonldObj, null, 2)
   }
 }
 
 // String escaping utilities
 
-function hexify(str) {
+function hexify(str: string) {
   // also used in parser
   return encodeURI(str)
 }
 
-function backslashUify(str) {
+function backslashUify(str: string) {
   var res = ''
-  var k
+  var k: number
   for (var i = 0; i < str.length; i++) {
     k = str.charCodeAt(i)
     if (k > 65535) {
