@@ -9,8 +9,8 @@ import { TextTermConverter } from './utils/text-term-converter'
 import { TreeBuilder, TreeBuilderNestedTree, TreeBuilderRootSubjects, TreeBuilderTree } from './utils/tree-builder'
 
 export class N3Serializer extends AbstractSerializer {
-  private textConverter: TextTermConverter
-  private treeBuilder: TreeBuilder
+  protected textConverter: TextTermConverter
+  protected treeBuilder: TreeBuilder
 
   constructor(store: Formula) {
     super(store)
