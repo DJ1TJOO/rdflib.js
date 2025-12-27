@@ -13,6 +13,17 @@ import { WriteStoreSerializer } from './write-store-serializer'
 import { XMLSerializer } from './xml-serializer'
 
 /**
+ * @deprecated Use implementations of {@link AbstractSerializer} instead
+ * @see {@link N3Serializer}
+ * @see {@link NTriplesSerializer}
+ * @see {@link XMLSerializer}
+ * @see {@link JSONLDSerializer}
+ */
+export default function createSerializer(store: Formula) {
+  return new BackwardCompatibleSerializer(store)
+}
+
+/**
  * @deprecated Use implementations of {@link AbstractSerializer} instead or see the {@link serialize} function
  * @see {@link serialize}
  * @see {@link N3Serializer}
@@ -116,15 +127,4 @@ export class BackwardCompatibleSerializer extends AbstractSerializer {
   isValidPNLocal(local: string): boolean {
     return this.textConverter.isValidPNLocal(local)
   }
-}
-
-/**
- * @deprecated Use implementations of {@link AbstractSerializer} instead
- * @see {@link N3Serializer}
- * @see {@link NTriplesSerializer}
- * @see {@link XMLSerializer}
- * @see {@link JSONLDSerializer}
- */
-export default function createSerializer(store: Formula) {
-  return new BackwardCompatibleSerializer(store)
 }
