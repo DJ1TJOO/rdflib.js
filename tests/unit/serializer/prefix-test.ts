@@ -1,12 +1,18 @@
 import { expect } from "chai";
-import { graph, Serializer } from "../../../src";
+import { AbstractSerializer, graph, Statement } from "../../../src";
+
+class TestSerializer extends AbstractSerializer {
+	serialize(_statements: Statement[]): string {
+		throw new Error("Not implemented");
+	}
+}
 
 describe("Serializer", () => {
 	describe("can make up prefixes", () => {
-		const serializer = Serializer(graph());
+		const serializer = new TestSerializer(graph());
 		afterEach(() => {
-			serializer.prefixes = [];
-			serializer.namespaces = [];
+			serializer.prefixes = {};
+			serializer.namespaces = {};
 		});
 
 		it("with a simple URI", () => {
