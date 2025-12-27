@@ -158,36 +158,6 @@ export abstract class AbstractSerializer {
     return this
   }
 
-  checkIntegrity() {
-    var p, ns
-    for (p in this.namespaces) {
-      if (this.prefixes[this.namespaces[p]] !== p) {
-        throw new Error(
-          'Serializer integity error 1: ' +
-            p +
-            ', ' +
-            this.namespaces[p] +
-            ', ' +
-            this.prefixes[this.namespaces[p]] +
-            '!'
-        )
-      }
-    }
-    for (ns in this.prefixes) {
-      if (this.namespaces[this.prefixes[ns]] !== ns) {
-        throw new Error(
-          'Serializer integity error 2: ' +
-            ns +
-            ', ' +
-            this.prefixes[ns] +
-            ', ' +
-            this.namespaces[this.prefixes[ns]] +
-            '!'
-        )
-      }
-    }
-  }
-
   // Make up an unused prefix for a random namespace
   makeUpPrefix(uri: string) {
     var p = uri
@@ -224,5 +194,35 @@ export abstract class AbstractSerializer {
       p = 'n' // Otherwise the loop below may never termimnate
     }
     for (var j = 0; ; j++) if (canUse(p.slice(0, 3) + j)) return p.slice(0, 3) + j
+  }
+
+  checkIntegrity() {
+    var p, ns
+    for (p in this.namespaces) {
+      if (this.prefixes[this.namespaces[p]] !== p) {
+        throw new Error(
+          'Serializer integity error 1: ' +
+            p +
+            ', ' +
+            this.namespaces[p] +
+            ', ' +
+            this.prefixes[this.namespaces[p]] +
+            '!'
+        )
+      }
+    }
+    for (ns in this.prefixes) {
+      if (this.namespaces[this.prefixes[ns]] !== ns) {
+        throw new Error(
+          'Serializer integity error 2: ' +
+            ns +
+            ', ' +
+            this.prefixes[ns] +
+            ', ' +
+            this.namespaces[this.prefixes[ns]] +
+            '!'
+        )
+      }
+    }
   }
 }
