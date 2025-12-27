@@ -26,7 +26,7 @@ export class BackwardCompatibleSerializer extends AbstractSerializer {
   forbidden1 = TextTermConverter.forbidden1
   forbidden3 = TextTermConverter.forbidden3
 
-  private textConverter = new TextTermConverter(this)
+  protected textConverter = new TextTermConverter(this)
 
   constructor(store: Formula) {
     super(store)

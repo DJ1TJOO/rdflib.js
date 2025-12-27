@@ -11,7 +11,7 @@ import { TextTermConverter } from './utils/text-term-converter'
 import { TreeBuilder, TreeBuilderRootSubjects, TreeBuilderTree } from './utils/tree-builder'
 
 export class XMLSerializer extends AbstractSerializer {
-  private treeBuilder: TreeBuilder
+  protected treeBuilder: TreeBuilder
 
   constructor(store: Formula) {
     super(store)

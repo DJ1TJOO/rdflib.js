@@ -8,7 +8,7 @@ import { AbstractSerializer } from './abstract-serializer'
 import { TextTermConverter } from './utils/text-term-converter'
 
 export class NTriplesSerializer extends AbstractSerializer {
-  private textConverter: TextTermConverter
+  protected textConverter: TextTermConverter
 
   constructor(store: Formula) {
     super(store)
