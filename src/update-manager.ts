@@ -8,13 +8,15 @@ import IndexedFormula from './store'
 import { docpart, join as uriJoin } from './uri'
 import Fetcher, { Options } from './fetcher'
 import Namespace from './namespace'
-import Serializer from './serializer/backward-compatible-serializer'
+import { XMLSerializer } from './serializer/xml-serializer'
+import { N3Serializer } from './serializer/n3-serializer'
 import { isBlankNode, isStore } from './utils/terms'
 import * as Util from './utils-js'
 import Statement from './statement'
 import RDFlibNamedNode from './named-node'
 import { termValue } from './utils/termValue'
 import { BlankNode, NamedNode, Quad, Quad_Graph, Quad_Object, Quad_Predicate, Quad_Subject, Term, } from './tf-types'
+import type { AbstractSerializer } from './serializer/abstract-serializer'
 
 interface UpdateManagerFormula extends IndexedFormula {
   fetcher: Fetcher
@@ -1143,33 +1145,34 @@ _:patch
    */
   serialize(uri: string, data: string | Quad[], contentType: string): string {
     const kb = this.store
-    let documentString
 
     if (typeof data === 'string') {
       return data
     }
 
+    // @TODO(serializer-refactor): Why does this not use the serialize function?
     // serialize to the appropriate format
-    var sz = Serializer(kb)
-    sz.suggestNamespaces(kb.namespaces)
-    sz.setBase(uri)
+    let serializer: AbstractSerializer
     switch (contentType) {
       case 'text/xml':
       case 'application/rdf+xml':
-        // @TODO(serializer-refactor): This assumption was already made, but is not safe since Quad Subjects/Predicates/Objects are missing toNt method, and elements for Collections
-        documentString = sz.statementsToXML(data as Statement[])
+        serializer = new XMLSerializer(kb)
         break
       case 'text/n3':
       case 'text/turtle':
       case 'application/x-turtle': // Legacy
       case 'application/n3': // Legacy
-        // @TODO(serializer-refactor): This assumption was already made, but is not safe since Quad Subjects/Predicates/Objects are missing toNt method, and elements for Collections
-        documentString = sz.statementsToN3(data as Statement[])  
+        serializer = new N3Serializer(kb)
         break
       default:
-        throw new Error('Content-type ' + contentType +
-          ' not supported for data serialization')
+        throw new Error('Content-type ' + contentType + ' not supported for data serialization')
     }
+
+    serializer.suggestNamespaces(kb.namespaces)
+    serializer.setBase(uri)
+    
+    // @TODO(serializer-refactor): This assumption was already made, but is not safe since Quad Subjects/Predicates/Objects are missing toNt method, and elements for Collections
+    const documentString = serializer.serialize(data as Statement[])
 
     return documentString
   }

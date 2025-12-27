@@ -31,6 +31,14 @@ import * as Util from './utils-js'
 import Variable from './variable'
 import DataFactory from './factories/rdflib-data-factory'
 
+export { N3Serializer } from './serializer/n3-serializer'
+export { NTriplesSerializer } from './serializer/ntriples-serializer'
+export { XMLSerializer } from './serializer/xml-serializer'
+export { JSONLDSerializer } from './serializer/jsonld-serializer'
+export { AbstractSerializer } from './serializer/abstract-serializer'
+export { TextTermConverter } from './serializer/utils/text-term-converter'
+export { TreeBuilder } from './serializer/utils/tree-builder'
+
 // Prepare bound versions of data factory methods for export
 const boundDataFactory = {} as IRDFlibDataFactory
 for (const name in DataFactory) {
