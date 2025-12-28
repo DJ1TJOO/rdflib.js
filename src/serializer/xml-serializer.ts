@@ -1,4 +1,4 @@
-import { Collection } from '..'
+import Collection from '../collection'
 import Formula from '../formula'
 import NamedNode from '../named-node'
 import Node from '../node'

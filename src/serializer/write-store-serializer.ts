@@ -1,7 +1,11 @@
-import { IndexedFormula, N3Serializer, Statement } from '..'
+import Statement from '../statement'
+import IndexedFormula from '../store'
 import { NamedNode } from '../tf-types'
+import { N3Serializer } from './n3-serializer'
 
 export class WriteStoreSerializer extends N3Serializer {
+  declare store: IndexedFormula
+
   constructor(store: IndexedFormula) {
     super(store)
   }
@@ -15,12 +19,7 @@ export class WriteStoreSerializer extends N3Serializer {
 
     // The core data
 
-    // @TODO(serializer-refactor): This is a hack to get the types to work and safely cast the store, what is the best way to do this?
-    if (!(this.store instanceof IndexedFormula)) {
-      throw new Error('Store is not an IndexedFormula')
-    }
-
-    var sources = (this.store as IndexedFormula).index[3]
+    var sources = this.store.index[3]
     for (var s in sources) {
       // -> assume we can use -> as short for log:semantics
       var source = kb.fromNT(s)
