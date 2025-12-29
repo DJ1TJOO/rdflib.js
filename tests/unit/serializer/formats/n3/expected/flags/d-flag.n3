@@ -1,0 +1,4 @@
+@prefix exa: </>.
+
+</#subject> exa:predicate exa:object.
+

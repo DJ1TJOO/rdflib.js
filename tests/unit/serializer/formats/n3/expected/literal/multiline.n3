@@ -1,0 +1,7 @@
+@prefix exa: <http://example.com/>.
+
+exa:subject
+    exa:predicate
+        """This is a
+multiline string
+with multiple lines""".

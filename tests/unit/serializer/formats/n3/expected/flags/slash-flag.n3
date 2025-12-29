@@ -1,0 +1,4 @@
+@prefix exa: <http://example.com#>.
+
+exa:subject <http://example.com/predicate> <http://example.com/path/to/resource>.
+

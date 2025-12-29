@@ -1,0 +1,7 @@
+@prefix more: <http://example.com/more-specific/>.
+@prefix exa: <http://example.com/>.
+
+more:subject exa:predicate exa:object.
+
+exa:subject exa:predicate exa:object.
+
