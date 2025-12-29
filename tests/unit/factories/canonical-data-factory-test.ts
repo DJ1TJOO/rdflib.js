@@ -8,12 +8,12 @@ import DefaultGraph from '../../../src/default-graph'
 import Empty from '../../../src/empty'
 
 describe('data-factory', () => {
-  it('supports id', () => { expect(Factory.supports[Feature.id]).to.be.true() })
-  it('supports equalsMethod', () => { expect(Factory.supports[Feature.equalsMethod]).to.be.true() })
-  it('does not supports collections', () => { expect(Factory.supports[Feature.collections]).to.be.false() })
-  it('does not supports defaultGraphType', () => { expect(Factory.supports[Feature.defaultGraphType]).to.be.false() })
-  it('does not supports identity', () => { expect(Factory.supports[Feature.identity]).to.be.false() })
-  it('does not supports reversibleId', () => { expect(Factory.supports[Feature.reversibleId]).to.be.false() })
+  it('supports id', () => { expect(Factory.supports[Feature.id]).to.be.true })
+  it('supports equalsMethod', () => { expect(Factory.supports[Feature.equalsMethod]).to.be.true })
+  it('does not supports collections', () => { expect(Factory.supports[Feature.collections]).to.be.false })
+  it('does not supports defaultGraphType', () => { expect(Factory.supports[Feature.defaultGraphType]).to.be.false })
+  it('does not supports identity', () => { expect(Factory.supports[Feature.identity]).to.be.false })
+  it('does not supports reversibleId', () => { expect(Factory.supports[Feature.reversibleId]).to.be.false })
 
   describe('equals', () => {
     const uri = "https://w3.org/"
