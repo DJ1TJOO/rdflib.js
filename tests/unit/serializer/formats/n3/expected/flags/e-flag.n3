@@ -1,0 +1,4 @@
+@prefix exa: <http://example.com/>.
+
+exa:subject exa:predicate "text with \u00e9moji \ud83c\udf89".
+

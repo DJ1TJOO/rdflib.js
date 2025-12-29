@@ -1,0 +1,4 @@
+@prefix exa: <http://example.com/>.
+
+exa:subject
+exa:predicate1 exa:object1; exa:predicate2 exa:object2; exa:predicate3 "value".

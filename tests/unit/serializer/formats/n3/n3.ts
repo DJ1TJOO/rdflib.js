@@ -1,0 +1,12 @@
+describe('N3', () => {
+  require('./statement')
+  require('./multiple-statements')
+  require('./literals')
+  require('./blank-nodes')
+  require('./variables')
+  require('./namespaces')
+  require('./special-predicates')
+  require('./flags')
+  require('./collections')
+  require('./named-graphs')
+})

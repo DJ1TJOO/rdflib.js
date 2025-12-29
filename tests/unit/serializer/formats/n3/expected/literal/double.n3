@@ -1,0 +1,4 @@
+@prefix exa: <http://example.com/>.
+
+exa:subject exa:predicate 1.23e0 .
+
