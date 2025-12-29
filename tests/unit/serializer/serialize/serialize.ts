@@ -1,4 +1,4 @@
-describe('N3', () => {
+describe('serialize', () => {
   require('./statement')
   require('./multiple-statements')
   require('./literals')

@@ -1,31 +1,18 @@
-import { expect } from 'chai'
-import { graph, lit, st, sym } from '../../../../../src'
-import { createN3Serializer } from './n3-factory'
+import { graph, lit, st, sym } from '../../../../src'
 
-import literalBooleanFalseToN3 from './expected/literal/boolean-false.n3'
-import literalBooleanTrueToN3 from './expected/literal/boolean-true.n3'
-import literalDateTimeToN3 from './expected/literal/datetime.n3'
-import literalDecimalToN3 from './expected/literal/decimal.n3'
-import literalDoubleEdgeCasesToN3 from './expected/literal/double-edge-cases.n3'
-import literalDoubleToN3 from './expected/literal/double.n3'
-import literalIntegerToN3 from './expected/literal/integer.n3'
-import literalLangToN3 from './expected/literal/lang.n3'
-import literalToN3 from './expected/literal/literal.n3'
-import literalMultilineToN3 from './expected/literal/multiline.n3'
-import literalSpecialCharsToN3 from './expected/literal/special-chars.n3'
+import { serializeEqualMultiple } from './utils/serialize-equal'
 
 describe('should serialize a literal', () => {
-  it('as a string', () => {
+  describe('as a string', () => {
     const statement = st(sym('http://example.com/subject'), sym('http://example.com/predicate'), lit('some text'))
 
     const store = graph()
     store.add(statement)
 
-    const n3 = createN3Serializer(store).serialize(store.statements)
-    expect(n3).to.equal(literalToN3)
+    serializeEqualMultiple(store, 'literal/literal', ['n3'])
   })
 
-  it('as a multiline string', () => {
+  describe('as a multiline string', () => {
     const statement = st(
       sym('http://example.com/subject'),
       sym('http://example.com/predicate'),
@@ -35,11 +22,10 @@ describe('should serialize a literal', () => {
     const store = graph()
     store.add(statement)
 
-    const n3 = createN3Serializer(store).serialize(store.statements)
-    expect(n3).to.equal(literalMultilineToN3)
+    serializeEqualMultiple(store, 'literal/multiline', ['n3'])
   })
 
-  it('with a language tag', () => {
+  describe('with a language tag', () => {
     const statement = st(
       sym('http://example.com/subject'),
       sym('http://example.com/predicate'),
@@ -49,11 +35,10 @@ describe('should serialize a literal', () => {
     const store = graph()
     store.add(statement)
 
-    const n3 = createN3Serializer(store).serialize(store.statements)
-    expect(n3).to.equal(literalLangToN3)
+    serializeEqualMultiple(store, 'literal/lang', ['n3'])
   })
 
-  it('as an integer', () => {
+  describe('as an integer', () => {
     const statement = st(
       sym('http://example.com/subject'),
       sym('http://example.com/predicate'),
@@ -63,11 +48,10 @@ describe('should serialize a literal', () => {
     const store = graph()
     store.add(statement)
 
-    const n3 = createN3Serializer(store).serialize(store.statements)
-    expect(n3).to.equal(literalIntegerToN3)
+    serializeEqualMultiple(store, 'literal/integer', ['n3'])
   })
 
-  it('as a decimal', () => {
+  describe('as a decimal', () => {
     const statement = st(
       sym('http://example.com/subject'),
       sym('http://example.com/predicate'),
@@ -77,11 +61,10 @@ describe('should serialize a literal', () => {
     const store = graph()
     store.add(statement)
 
-    const n3 = createN3Serializer(store).serialize(store.statements)
-    expect(n3).to.equal(literalDecimalToN3)
+    serializeEqualMultiple(store, 'literal/decimal', ['n3'])
   })
 
-  it('as a double', () => {
+  describe('as a double', () => {
     const statement = st(
       sym('http://example.com/subject'),
       sym('http://example.com/predicate'),
@@ -91,11 +74,10 @@ describe('should serialize a literal', () => {
     const store = graph()
     store.add(statement)
 
-    const n3 = createN3Serializer(store).serialize(store.statements)
-    expect(n3).to.equal(literalDoubleToN3)
+    serializeEqualMultiple(store, 'literal/double', ['n3'])
   })
 
-  it('as a boolean (true)', () => {
+  describe('as a boolean (true)', () => {
     const statement = st(
       sym('http://example.com/subject'),
       sym('http://example.com/predicate'),
@@ -105,11 +87,10 @@ describe('should serialize a literal', () => {
     const store = graph()
     store.add(statement)
 
-    const n3 = createN3Serializer(store).serialize(store.statements)
-    expect(n3).to.equal(literalBooleanTrueToN3)
+    serializeEqualMultiple(store, 'literal/boolean-true', ['n3'])
   })
 
-  it('as a boolean (false)', () => {
+  describe('as a boolean (false)', () => {
     const statement = st(
       sym('http://example.com/subject'),
       sym('http://example.com/predicate'),
@@ -119,11 +100,10 @@ describe('should serialize a literal', () => {
     const store = graph()
     store.add(statement)
 
-    const n3 = createN3Serializer(store).serialize(store.statements)
-    expect(n3).to.equal(literalBooleanFalseToN3)
+    serializeEqualMultiple(store, 'literal/boolean-false', ['n3'])
   })
 
-  it('as a dateTime', () => {
+  describe('as a dateTime', () => {
     const statement = st(
       sym('http://example.com/subject'),
       sym('http://example.com/predicate'),
@@ -133,12 +113,11 @@ describe('should serialize a literal', () => {
     const store = graph()
     store.add(statement)
 
-    const n3 = createN3Serializer(store).serialize(store.statements)
-    expect(n3).to.equal(literalDateTimeToN3)
+    serializeEqualMultiple(store, 'literal/datetime', ['n3'])
   })
 
   describe('double edge cases', () => {
-    it('should serialize various double formats', () => {
+    describe('should serialize various double formats', () => {
       const store = graph()
       store.add(
         st(
@@ -190,13 +169,12 @@ describe('should serialize a literal', () => {
         )
       )
 
-      const n3 = createN3Serializer(store).serialize(store.statements)
-      expect(n3).to.equal(literalDoubleEdgeCasesToN3)
+      serializeEqualMultiple(store, 'literal/double-edge-cases', ['n3'])
     })
   })
 
   describe('special characters', () => {
-    it('should serialize literals with newlines, quotes, and multiline text', () => {
+    describe('should serialize literals with newlines, quotes, and multiline text', () => {
       const store = graph()
       store.add(st(sym('http://example.com/subject'), sym('http://example.com/predicate'), lit('text with\nnewline')))
       store.add(st(sym('http://example.com/subject2'), sym('http://example.com/predicate'), lit('text with "quotes"')))
@@ -208,8 +186,7 @@ describe('should serialize a literal', () => {
         )
       )
 
-      const n3 = createN3Serializer(store).serialize(store.statements)
-      expect(n3).to.equal(literalSpecialCharsToN3)
+      serializeEqualMultiple(store, 'literal/special-chars', ['n3'])
     })
   })
 })

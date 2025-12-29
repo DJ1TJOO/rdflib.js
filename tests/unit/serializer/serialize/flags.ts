@@ -1,27 +1,10 @@
-import { expect } from 'chai'
-import { graph, lit, st, sym } from '../../../../../src'
-import { createN3Serializer } from './n3-factory'
+import { graph, lit, st, sym } from '../../../../src'
 
-import flagCombinedToN3 from './expected/flags/combined-flags.n3'
-import flagDToN3 from './expected/flags/d-flag.n3'
-import flagEToN3 from './expected/flags/e-flag.n3'
-import flagIToN3 from './expected/flags/i-flag.n3'
-import flagKToN3 from './expected/flags/k-flag.n3'
-import flagNToN3 from './expected/flags/n-flag.n3'
-import flagOToN3 from './expected/flags/o-flag.n3'
-import flagPToN3 from './expected/flags/p-flag.n3'
-import flagRToN3 from './expected/flags/r-flag.n3'
-import flagSToN3 from './expected/flags/s-flag.n3'
-import flagSlashToN3 from './expected/flags/slash-flag.n3'
-import flagTToN3 from './expected/flags/t-flag.n3'
-import flagXBooleanToN3 from './expected/flags/x-flag-boolean.n3'
-import flagXDecimalToN3 from './expected/flags/x-flag-decimal.n3'
-import flagXDoubleToN3 from './expected/flags/x-flag-double.n3'
-import flagXToN3 from './expected/flags/x-flag.n3'
+import { serializeEqualMultiple } from './utils/serialize-equal'
 
 describe('flags', () => {
   describe('x flag - suppress native numbers', () => {
-    it('should serialize integers as strings with x flag', () => {
+    describe('should serialize integers as strings with x flag', () => {
       const statement = st(
         sym('http://example.com/subject'),
         sym('http://example.com/predicate'),
@@ -31,13 +14,12 @@ describe('flags', () => {
       const store = graph()
       store.add(statement)
 
-      const serializer = createN3Serializer(store)
-      serializer.setFlags('x')
-      const n3 = serializer.serialize(store.statements)
-      expect(n3).to.equal(flagXToN3)
+      serializeEqualMultiple(store, 'flags/x-flag', ['n3'], serializer => {
+        serializer.setFlags('x')
+      })
     })
 
-    it('should serialize doubles as strings with x flag', () => {
+    describe('should serialize doubles as strings with x flag', () => {
       const statement = st(
         sym('http://example.com/subject'),
         sym('http://example.com/predicate'),
@@ -47,13 +29,12 @@ describe('flags', () => {
       const store = graph()
       store.add(statement)
 
-      const serializer = createN3Serializer(store)
-      serializer.setFlags('x')
-      const n3 = serializer.serialize(store.statements)
-      expect(n3).to.equal(flagXDoubleToN3)
+      serializeEqualMultiple(store, 'flags/x-flag-double', ['n3'], serializer => {
+        serializer.setFlags('x')
+      })
     })
 
-    it('should serialize decimals as strings with x flag', () => {
+    describe('should serialize decimals as strings with x flag', () => {
       const statement = st(
         sym('http://example.com/subject'),
         sym('http://example.com/predicate'),
@@ -63,13 +44,12 @@ describe('flags', () => {
       const store = graph()
       store.add(statement)
 
-      const serializer = createN3Serializer(store)
-      serializer.setFlags('x')
-      const n3 = serializer.serialize(store.statements)
-      expect(n3).to.equal(flagXDecimalToN3)
+      serializeEqualMultiple(store, 'flags/x-flag-decimal', ['n3'], serializer => {
+        serializer.setFlags('x')
+      })
     })
 
-    it('should serialize booleans as strings with x flag', () => {
+    describe('should serialize booleans as strings with x flag', () => {
       const statement = st(
         sym('http://example.com/subject'),
         sym('http://example.com/predicate'),
@@ -79,15 +59,14 @@ describe('flags', () => {
       const store = graph()
       store.add(statement)
 
-      const serializer = createN3Serializer(store)
-      serializer.setFlags('x')
-      const n3 = serializer.serialize(store.statements)
-      expect(n3).to.equal(flagXBooleanToN3)
+      serializeEqualMultiple(store, 'flags/x-flag-boolean', ['n3'], serializer => {
+        serializer.setFlags('x')
+      })
     })
   })
 
   describe('n flag - force single line', () => {
-    it('should force single line strings with n flag', () => {
+    describe('should force single line strings with n flag', () => {
       const statement = st(
         sym('http://example.com/subject'),
         sym('http://example.com/predicate'),
@@ -97,15 +76,14 @@ describe('flags', () => {
       const store = graph()
       store.add(statement)
 
-      const serializer = createN3Serializer(store)
-      serializer.setFlags('n')
-      const n3 = serializer.serialize(store.statements)
-      expect(n3).to.equal(flagNToN3)
+      serializeEqualMultiple(store, 'flags/n-flag', ['n3'], serializer => {
+        serializer.setFlags('n')
+      })
     })
   })
 
   describe('e flag - unicode escaping', () => {
-    it('should escape unicode characters with e flag', () => {
+    describe('should escape unicode characters with e flag', () => {
       const statement = st(
         sym('http://example.com/subject'),
         sym('http://example.com/predicate'),
@@ -115,15 +93,14 @@ describe('flags', () => {
       const store = graph()
       store.add(statement)
 
-      const serializer = createN3Serializer(store)
-      serializer.setFlags('e')
-      const n3 = serializer.serialize(store.statements)
-      expect(n3).to.equal(flagEToN3)
+      serializeEqualMultiple(store, 'flags/e-flag', ['n3'], serializer => {
+        serializer.setFlags('e')
+      })
     })
   })
 
   describe('r flag - relative URIs', () => {
-    it('should not use relative URIs with r flag', () => {
+    describe('should not use relative URIs with r flag', () => {
       const statement = st(
         sym('http://example.com/subject'),
         sym('http://example.com/predicate'),
@@ -133,11 +110,10 @@ describe('flags', () => {
       const store = graph()
       store.add(statement)
 
-      const serializer = createN3Serializer(store)
-      serializer.setBase('http://example.com/')
-      serializer.setFlags('r')
-      const n3 = serializer.serialize(store.statements)
-      expect(n3).to.equal(flagRToN3)
+      serializeEqualMultiple(store, 'flags/r-flag', ['n3'], serializer => {
+        serializer.setBase('http://example.com/')
+        serializer.setFlags('r')
+      })
     })
   })
 
@@ -161,7 +137,7 @@ describe('flags', () => {
   // })
 
   describe('o flag - no abbreviation with dots', () => {
-    it('should not abbreviate URIs with dots in local name with o flag', () => {
+    describe('should not abbreviate URIs with dots in local name with o flag', () => {
       const statement = st(
         sym('http://example.com/subject'),
         sym('http://example.com/predicate'),
@@ -171,16 +147,15 @@ describe('flags', () => {
       const store = graph()
       store.add(statement)
 
-      const serializer = createN3Serializer(store)
-      serializer.setPrefix('exa', 'http://example.com/')
-      serializer.setFlags('o')
-      const n3 = serializer.serialize(store.statements)
-      expect(n3).to.equal(flagOToN3)
+      serializeEqualMultiple(store, 'flags/o-flag', ['n3'], serializer => {
+        serializer.setPrefix('exa', 'http://example.com/')
+        serializer.setFlags('o')
+      })
     })
   })
 
   describe('s flag - suppress sameAs abbreviation', () => {
-    it('should not abbreviate owl:sameAs to = with s flag', () => {
+    describe('should not abbreviate owl:sameAs to = with s flag', () => {
       const statement = st(
         sym('http://example.com/subject'),
         sym('http://www.w3.org/2002/07/owl#sameAs'),
@@ -190,16 +165,15 @@ describe('flags', () => {
       const store = graph()
       store.add(statement)
 
-      const serializer = createN3Serializer(store)
-      serializer.setPrefix('exa', 'http://example.com/')
-      serializer.setFlags('s')
-      const n3 = serializer.serialize(store.statements)
-      expect(n3).to.equal(flagSToN3)
+      serializeEqualMultiple(store, 'flags/s-flag', ['n3'], serializer => {
+        serializer.setPrefix('exa', 'http://example.com/')
+        serializer.setFlags('s')
+      })
     })
   })
 
   describe('t flag - suppress type abbreviation', () => {
-    it('should not abbreviate rdf:type to a with t flag', () => {
+    describe('should not abbreviate rdf:type to a with t flag', () => {
       const statement = st(
         sym('http://example.com/subject'),
         sym('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'),
@@ -209,16 +183,15 @@ describe('flags', () => {
       const store = graph()
       store.add(statement)
 
-      const serializer = createN3Serializer(store)
-      serializer.setPrefix('exa', 'http://example.com/')
-      serializer.setFlags('t')
-      const n3 = serializer.serialize(store.statements)
-      expect(n3).to.equal(flagTToN3)
+      serializeEqualMultiple(store, 'flags/t-flag', ['n3'], serializer => {
+        serializer.setPrefix('exa', 'http://example.com/')
+        serializer.setFlags('t')
+      })
     })
   })
 
   describe('i flag - suppress implies abbreviation', () => {
-    it('should not abbreviate log:implies to => with i flag', () => {
+    describe('should not abbreviate log:implies to => with i flag', () => {
       const statement = st(
         sym('http://example.com/subject'),
         sym('http://www.w3.org/2000/10/swap/log#implies'),
@@ -228,16 +201,15 @@ describe('flags', () => {
       const store = graph()
       store.add(statement)
 
-      const serializer = createN3Serializer(store)
-      serializer.setPrefix('exa', 'http://example.com/')
-      serializer.setFlags('i')
-      const n3 = serializer.serialize(store.statements)
-      expect(n3).to.equal(flagIToN3)
+      serializeEqualMultiple(store, 'flags/i-flag', ['n3'], serializer => {
+        serializer.setPrefix('exa', 'http://example.com/')
+        serializer.setFlags('i')
+      })
     })
   })
 
   describe('d flag - suppress default namespace prefix', () => {
-    it('should not use default namespace prefix with d flag', () => {
+    describe('should not use default namespace prefix with d flag', () => {
       const statement = st(
         sym('http://example.com/#subject'),
         sym('http://example.com/predicate'),
@@ -247,17 +219,16 @@ describe('flags', () => {
       const store = graph()
       store.add(statement)
 
-      const serializer = createN3Serializer(store)
-      serializer.setBase('http://example.com/#')
-      serializer.setPrefix('exa', 'http://example.com/')
-      serializer.setFlags('d')
-      const n3 = serializer.serialize(store.statements)
-      expect(n3).to.equal(flagDToN3)
+      serializeEqualMultiple(store, 'flags/d-flag', ['n3'], serializer => {
+        serializer.setBase('http://example.com/#')
+        serializer.setPrefix('exa', 'http://example.com/')
+        serializer.setFlags('d')
+      })
     })
   })
 
   describe('p flag - no URI splitting', () => {
-    it('should not split URIs into namespace and local part with p flag', () => {
+    describe('should not split URIs into namespace and local part with p flag', () => {
       const statement = st(
         sym('http://example.com/subject'),
         sym('http://example.com/predicate'),
@@ -267,15 +238,14 @@ describe('flags', () => {
       const store = graph()
       store.add(statement)
 
-      const serializer = createN3Serializer(store)
-      serializer.setFlags('p')
-      const n3 = serializer.serialize(store.statements)
-      expect(n3).to.equal(flagPToN3)
+      serializeEqualMultiple(store, 'flags/p-flag', ['n3'], serializer => {
+        serializer.setFlags('p')
+      })
     })
   })
 
   describe('/ flag - no splitting on slash', () => {
-    it('should only split on # not on / with / flag', () => {
+    describe('should only split on # not on / with / flag', () => {
       const statement = st(
         sym('http://example.com#subject'),
         sym('http://example.com/predicate'),
@@ -285,15 +255,14 @@ describe('flags', () => {
       const store = graph()
       store.add(statement)
 
-      const serializer = createN3Serializer(store)
-      serializer.setFlags('/')
-      const n3 = serializer.serialize(store.statements)
-      expect(n3).to.equal(flagSlashToN3)
+      serializeEqualMultiple(store, 'flags/slash-flag', ['n3'], serializer => {
+        serializer.setFlags('/')
+      })
     })
   })
 
   describe('k flag - allow keywords without colon', () => {
-    it('should allow keywords without colon prefix with k flag', () => {
+    describe('should allow keywords without colon prefix with k flag', () => {
       const statement = st(
         sym('http://example.com/#subject'),
         sym('http://example.com/#predicate'),
@@ -303,16 +272,15 @@ describe('flags', () => {
       const store = graph()
       store.add(statement)
 
-      const serializer = createN3Serializer(store)
-      serializer.setBase('http://example.com/')
-      serializer.setFlags('k')
-      const n3 = serializer.serialize(store.statements)
-      expect(n3).to.equal(flagKToN3)
+      serializeEqualMultiple(store, 'flags/k-flag', ['n3'], serializer => {
+        serializer.setBase('http://example.com/')
+        serializer.setFlags('k')
+      })
     })
   })
 
   describe('combined flags', () => {
-    it('should apply multiple flags simultaneously', () => {
+    describe('should apply multiple flags simultaneously', () => {
       const statement = st(
         sym('http://example.com/subject'),
         sym('http://example.com/predicate'),
@@ -322,10 +290,9 @@ describe('flags', () => {
       const store = graph()
       store.add(statement)
 
-      const serializer = createN3Serializer(store)
-      serializer.setFlags('xt s')
-      const n3 = serializer.serialize(store.statements)
-      expect(n3).to.equal(flagCombinedToN3)
+      serializeEqualMultiple(store, 'flags/combined-flags', ['n3'], serializer => {
+        serializer.setFlags('xt s')
+      })
     })
   })
 })
