@@ -4,15 +4,7 @@
     ["@babel/preset-typescript", { "allowDeclareFields": true }]
   ],
   "plugins": [
-    "@babel/plugin-transform-runtime",
-    ["babel-plugin-inline-import", {
-      "extensions": [
-        ".jsonld",
-        ".n3",
-        ".ttl",
-        ".rdf"
-      ]
-    }]
+    "@babel/plugin-transform-runtime"
   ],
   "env": {
     "esm": {
