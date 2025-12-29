@@ -1,3 +1,3 @@
 describe('Serializer', () => {
-  require('./formats/n3/n3')
+  require('./serialize/serialize')
 })

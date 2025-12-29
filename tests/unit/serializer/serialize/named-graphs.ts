@@ -1,13 +1,10 @@
-import { expect } from 'chai'
-import { graph, st, sym } from '../../../../../src'
-import { createN3Serializer } from './n3-factory'
+import { graph, st, sym } from '../../../../src'
 
-import namedGraphMultipleToN3 from './expected/named-graphs/multiple.n3'
-import namedGraphSingleToN3 from './expected/named-graphs/single.n3'
+import { serializeEqualMultiple } from './utils/serialize-equal'
 
 // @TODO(serializer-refactor): should this create different results?
 describe('named graphs', () => {
-  it('should serialize statements in a named graph', () => {
+  describe('should serialize statements in a named graph', () => {
     const graphNode = sym('http://example.com/graph')
     const statement = st(
       sym('http://example.com/subject'),
@@ -19,11 +16,10 @@ describe('named graphs', () => {
     const store = graph()
     store.add(statement)
 
-    const n3 = createN3Serializer(store).serialize(store.statements)
-    expect(n3).to.equal(namedGraphSingleToN3)
+    serializeEqualMultiple(store, 'named-graphs/single', ['n3'])
   })
 
-  it('should serialize multiple statements in different graphs', () => {
+  describe('should serialize multiple statements in different graphs', () => {
     const graph1 = sym('http://example.com/graph1')
     const graph2 = sym('http://example.com/graph2')
     const store = graph()
@@ -44,7 +40,6 @@ describe('named graphs', () => {
       )
     )
 
-    const n3 = createN3Serializer(store).serialize(store.statements)
-    expect(n3).to.equal(namedGraphMultipleToN3)
+    serializeEqualMultiple(store, 'named-graphs/multiple', ['n3'])
   })
 })
