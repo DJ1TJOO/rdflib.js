@@ -1,0 +1,7 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./temp_ts_output"
+  },
+  "include": ["src/**/*"]
+}
