@@ -10,7 +10,7 @@ describe('multiple predicates', () => {
     store.add(st(subject, sym('http://example.com/predicate2'), sym('http://example.com/object2')))
     store.add(st(subject, sym('http://example.com/predicate3'), lit('value')))
 
-    serializeEqualMultiple(store, 'multiple-statements/multiple-predicates', ['n3'])
+    serializeEqualMultiple(store, 'multiple-statements/multiple-predicates', ['n3', 'nt', 'rdf'])
   })
 })
 
@@ -23,7 +23,7 @@ describe('multiple objects', () => {
     store.add(st(subject, predicate, sym('http://example.com/object2')))
     store.add(st(subject, predicate, lit('value')))
 
-    serializeEqualMultiple(store, 'multiple-statements/multiple-objects', ['n3'])
+    serializeEqualMultiple(store, 'multiple-statements/multiple-objects', ['n3', 'nt', 'rdf'])
   })
 })
 
@@ -38,6 +38,6 @@ describe('multiple statements', () => {
     )
     store.add(st(sym('http://example.com/subject3'), sym('http://example.com/predicate3'), lit('value')))
 
-    serializeEqualMultiple(store, 'multiple-statements/multiple-statements', ['n3'])
+    serializeEqualMultiple(store, 'multiple-statements/multiple-statements', ['n3', 'nt', 'rdf'])
   })
 })

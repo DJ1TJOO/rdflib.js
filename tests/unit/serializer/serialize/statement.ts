@@ -12,5 +12,5 @@ describe('should serialize a statement to', () => {
   const store = graph()
   store.add(statement)
 
-  serializeEqualMultiple(store, 'statement', ['n3'])
+  serializeEqualMultiple(store, 'statement', ['n3', 'nt', 'rdf'])
 })

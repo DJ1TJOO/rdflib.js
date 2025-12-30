@@ -1,0 +1,3 @@
+exa:subject exa:predicate1 exa:object1 .
+exa:subject exa:predicate2 exa:object2 .
+exa:subject exa:predicate3 "value" .

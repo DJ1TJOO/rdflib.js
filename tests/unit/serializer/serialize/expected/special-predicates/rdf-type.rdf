@@ -1,0 +1,5 @@
+<rdf:RDF
+ xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+ xmlns:exa="http://example.com/">
+   <exa:Type rdf:about="http://example.com/subject"></exa:Type>
+</rdf:RDF>

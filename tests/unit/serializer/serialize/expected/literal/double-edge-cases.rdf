@@ -1,0 +1,25 @@
+<rdf:RDF
+ xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+ xmlns:exa="http://example.com/">
+    <rdf:Description rdf:about="http://example.com/subject">
+        <exa:predicate rdf:datatype="http://www.w3.org/2001/XMLSchema#double">0.123</exa:predicate>
+    </rdf:Description>
+    <rdf:Description rdf:about="http://example.com/subject2">
+        <exa:predicate rdf:datatype="http://www.w3.org/2001/XMLSchema#double">123</exa:predicate>
+    </rdf:Description>
+    <rdf:Description rdf:about="http://example.com/subject3">
+        <exa:predicate rdf:datatype="http://www.w3.org/2001/XMLSchema#double">0.123e2</exa:predicate>
+    </rdf:Description>
+    <rdf:Description rdf:about="http://example.com/subject4">
+        <exa:predicate rdf:datatype="http://www.w3.org/2001/XMLSchema#double">0.123e-2</exa:predicate>
+    </rdf:Description>
+    <rdf:Description rdf:about="http://example.com/subject5">
+        <exa:predicate rdf:datatype="http://www.w3.org/2001/XMLSchema#double">0.123E2</exa:predicate>
+    </rdf:Description>
+    <rdf:Description rdf:about="http://example.com/subject6">
+        <exa:predicate rdf:datatype="http://www.w3.org/2001/XMLSchema#double">123e2</exa:predicate>
+    </rdf:Description>
+    <rdf:Description rdf:about="http://example.com/subject7">
+        <exa:predicate rdf:datatype="http://www.w3.org/2001/XMLSchema#double">123e-2</exa:predicate>
+    </rdf:Description>
+</rdf:RDF>
