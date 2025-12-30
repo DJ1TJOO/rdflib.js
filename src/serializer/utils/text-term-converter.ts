@@ -52,7 +52,7 @@ export class TextTermConverter {
               return lit.value === '1' ? 'true' : 'false'
           }
         }
-        var str = this.stringToN3(lit.value, this.serializer.flags)
+        var str = this.stringToN3(lit.value)
         if (lit.language) {
           str += '@' + lit.language
         } else if (!lit.datatype.equals(this.serializer.xsd.string)) {
@@ -135,7 +135,7 @@ export class TextTermConverter {
 
   //  stringToN3:  String escaping for N3
   stringToN3(str: string, flags?: string) {
-    if (!flags) flags = 'e'
+    const flagsToUse = flags || this.serializer.flags || 'e'
     var res = ''
     var i: number, j: number, k: number
     var delim: string
@@ -143,7 +143,7 @@ export class TextTermConverter {
     if (
       str.length > 20 && // Long enough to make sense
       str.slice(-1) !== '"' && // corner case'
-      flags.indexOf('n') < 0 && // Force single line
+      flagsToUse.indexOf('n') < 0 && // Force single line
       (str.indexOf('\n') > 0 || str.indexOf('"') > 0)
     ) {
       delim = '"""'
@@ -166,7 +166,7 @@ export class TextTermConverter {
         if (k >= 0) {
           res += '\\' + 'bfrtvn\\"'[k]
         } else {
-          if (flags.indexOf('e') >= 0) {
+          if (flagsToUse.indexOf('e') >= 0) {
             // Unicode escaping in strings not unix style
             res += '\\u' + ('000' + ch.charCodeAt(0).toString(16).toLowerCase()).slice(-4)
           } else {

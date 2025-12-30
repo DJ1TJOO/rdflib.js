@@ -1,16 +1,17 @@
-import { NamedNode } from '..'
-import Formula from '../formula'
-import Node from '../node'
-import type serialize from '../serialize'
-import Statement from '../statement'
-import { DefaultGraph } from '../tf-types'
-import { AbstractSerializer } from './abstract-serializer'
-import { JSONLDSerializer } from './jsonld-serializer'
-import { N3Serializer } from './n3-serializer'
-import { NTriplesSerializer } from './ntriples-serializer'
-import { TextTermConverter } from './utils/text-term-converter'
-import { WriteStoreSerializer } from './write-store-serializer'
-import { XMLSerializer } from './xml-serializer'
+import { NamedNode } from '../..'
+import Formula from '../../formula'
+import Node from '../../node'
+import Statement from '../../statement'
+import { DefaultGraph } from '../../tf-types'
+import { AbstractSerializer } from '../abstract-serializer'
+import { JSONLDSerializer } from '../jsonld-serializer'
+import { N3Serializer } from '../n3-serializer'
+import { NTriplesSerializer } from '../ntriples-serializer'
+import { TextTermConverter } from '../utils/text-term-converter'
+import { TreeBuilder } from '../utils/tree-builder'
+import { WriteStoreSerializer } from '../write-store-serializer'
+import { XMLSerializer } from '../xml-serializer'
+import { LegacySerializerInterface } from './legacy-serializer-interface'
 
 /**
  * @deprecated Use implementations of {@link AbstractSerializer} instead
@@ -20,7 +21,7 @@ import { XMLSerializer } from './xml-serializer'
  * @see {@link JSONLDSerializer}
  */
 export default function createSerializer(store: Formula) {
-  return new BackwardCompatibleSerializer(store)
+  return new LegacyCompatibleSerializer(store)
 }
 
 /**
@@ -31,7 +32,7 @@ export default function createSerializer(store: Formula) {
  * @see {@link XMLSerializer}
  * @see {@link JSONLDSerializer}
  */
-export class BackwardCompatibleSerializer extends AbstractSerializer {
+export class LegacyCompatibleSerializer extends AbstractSerializer implements LegacySerializerInterface {
   _notQNameChars = TextTermConverter._notQNameChars
   _notNameChars = TextTermConverter._notNameChars
   validPrefix = AbstractSerializer.validPrefix
@@ -39,67 +40,70 @@ export class BackwardCompatibleSerializer extends AbstractSerializer {
   forbidden3 = TextTermConverter.forbidden3
 
   protected textConverter = new TextTermConverter(this)
+  protected treeBuilder = new TreeBuilder(this)
 
   constructor(store: Formula) {
     super(store)
   }
 
   serialize(statements: Statement[]): string {
-    return this.statementsToN3(statements)
+    throw new Error(
+      'LegacyCompatibleSerializer is not implemented, please use a concrete implementation of AbstractSerializer instead'
+    )
   }
 
   private createSerializer<T extends AbstractSerializer>(SerializerClass: new (store: Formula) => T): T {
     const serializer = new SerializerClass(this.store)
 
-    // Do not copy BackwardCompatibleSerializer specific properties
+    // Do not copy LegacyCompatibleSerializer specific properties
     const { textConverter, _notQNameChars, _notNameChars, validPrefix, forbidden1, forbidden3, ...propsToCopy } = this
     Object.assign(serializer, propsToCopy)
 
     return serializer
   }
 
-  private createN3Serializer(): N3Serializer {
+  private createN3Serializer() {
     return this.createSerializer(N3Serializer)
   }
 
-  private createNTriplesSerializer(): NTriplesSerializer {
+  private createNTriplesSerializer() {
     return this.createSerializer(NTriplesSerializer)
   }
 
-  private createXMLSerializer(): XMLSerializer {
+  private createXMLSerializer() {
     return this.createSerializer(XMLSerializer)
   }
 
-  private createJSONLDSerializer(): JSONLDSerializer {
+  private createJSONLDSerializer() {
     return this.createSerializer(JSONLDSerializer)
   }
 
-  private createWriteStoreSerializer(): WriteStoreSerializer {
+  private createWriteStoreSerializer() {
     // @TODO(serializer-refactor): This assumption was already made, but is not safe since index is missing from Formula, and required for WriteStoreSerializer.writeStore to function
     return this.createSerializer(WriteStoreSerializer as unknown as new (store: Formula) => WriteStoreSerializer)
   }
 
-  statementsToN3(sts: Statement[]): string {
+  statementsToN3(sts: Statement[]) {
     const serializer = this.createN3Serializer()
     return serializer.serialize(sts)
   }
 
-  statementsToNTriples(sts: Statement[]): string {
+  statementsToNTriples(sts: Statement[]) {
     const serializer = this.createNTriplesSerializer()
     return serializer.serialize(sts)
   }
 
-  statementsToXML(sts: Statement[]): string {
+  statementsToXML(sts: Statement[]) {
     const serializer = this.createXMLSerializer()
     return serializer.serialize(sts)
   }
 
-  statementsToJsonld(sts: Statement[]): string {
+  statementsToJsonld(sts: Statement[]) {
     const serializer = this.createJSONLDSerializer()
     return serializer.serialize(sts)
   }
 
-  toN3(f: Formula): string {
+  toN3(f: Formula) {
     return this.statementsToN3(f.statements)
   }
 
@@ -108,23 +112,27 @@ export class BackwardCompatibleSerializer extends AbstractSerializer {
     serializer.writeStore(write)
   }
 
-  atomicTermToN3(expr: Node | DefaultGraph): string {
+  atomicTermToN3(expr: Node | DefaultGraph) {
     return this.textConverter.atomicTermToN3(expr)
   }
 
-  symbolToN3(x: NamedNode): string {
+  symbolToN3(x: NamedNode) {
     return this.textConverter.symbolToN3(x)
   }
 
-  explicitURI(uri: string): string {
+  explicitURI(uri: string) {
     return this.textConverter.explicitURI(uri)
   }
 
-  stringToN3(str: string, flags?: string): string {
+  stringToN3(str: string, flags?: string) {
     return this.textConverter.stringToN3(str, flags || this.flags)
   }
 
-  isValidPNLocal(local: string): boolean {
+  isValidPNLocal(local: string) {
     return this.textConverter.isValidPNLocal(local)
+  }
+
+  rootSubjects(sts: Statement[]) {
+    return this.treeBuilder.rootSubjects(sts)
   }
 }
