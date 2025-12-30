@@ -312,6 +312,46 @@ describe('flags', () => {
     })
   })
 
+  describe('q flag - output quads', () => {
+    describe('should output quads with q flag', () => {
+      const graphNode = sym('http://example.com/graph')
+      const statement = st(
+        sym('http://example.com/subject'),
+        sym('http://example.com/predicate'),
+        sym('http://example.com/object'),
+        graphNode
+      )
+
+      const store = graph()
+      store.add(statement)
+
+      // Used by NTriples serializer only. Ignored by N3 and XML serializers.
+      serializeEqualMultiple(store, 'flags/q-flag', ['n3', 'nt', 'rdf'], serializer => {
+        serializer.setFlags('q')
+      })
+    })
+  })
+
+  describe('z flag - relative URIs in XML namespace declarations', () => {
+    describe('should use relative URIs in XML namespace declarations with z flag', () => {
+      const statement = st(
+        sym('http://example.com/subject'),
+        sym('http://example.com/predicate'),
+        sym('http://example.com/object')
+      )
+
+      const store = graph()
+      store.add(statement)
+
+      // Used by XML serializer only. Ignored by N3 and NTriples serializers.
+      serializeEqualMultiple(store, 'flags/z-flag', ['n3', 'nt', 'rdf'], serializer => {
+        serializer.setBase('http://example.com/')
+        serializer.setPrefix('exa', 'http://example.com/')
+        serializer.setFlags('z')
+      })
+    })
+  })
+
   describe('combined flags', () => {
     describe('should apply multiple flags simultaneously', () => {
       const statement = st(
