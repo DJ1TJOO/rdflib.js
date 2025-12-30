@@ -10,7 +10,7 @@ describe('blank nodes', () => {
     const store = graph()
     store.add(statement)
 
-    serializeEqualMultiple(store, 'blank-nodes/subject', ['n3'])
+    serializeEqualMultiple(store, 'blank-nodes/subject', ['n3', 'nt', 'rdf'])
   })
 
   describe('should serialize a blank node as object', () => {
@@ -20,7 +20,7 @@ describe('blank nodes', () => {
     const store = graph()
     store.add(statement)
 
-    serializeEqualMultiple(store, 'blank-nodes/object', ['n3'])
+    serializeEqualMultiple(store, 'blank-nodes/object', ['n3', 'nt', 'rdf'])
   })
 
   describe('should serialize an anonymous blank node', () => {
@@ -30,7 +30,7 @@ describe('blank nodes', () => {
     const store = graph()
     store.add(statement)
 
-    serializeEqualMultiple(store, 'blank-nodes/anonymous', ['n3'])
+    serializeEqualMultiple(store, 'blank-nodes/anonymous', ['n3', 'nt', 'rdf'])
   })
 
   describe('should serialize nested blank nodes', () => {
@@ -41,6 +41,6 @@ describe('blank nodes', () => {
     store.add(st(bnode1, sym('http://example.com/predicate2'), bnode2))
     store.add(st(bnode2, sym('http://example.com/predicate3'), sym('http://example.com/object2')))
 
-    serializeEqualMultiple(store, 'blank-nodes/nested', ['n3'])
+    serializeEqualMultiple(store, 'blank-nodes/nested', ['n3', 'nt', 'rdf'])
   })
 })

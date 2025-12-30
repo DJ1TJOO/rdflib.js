@@ -14,7 +14,8 @@ describe('namespaces and prefixes', () => {
       const store = graph()
       store.add(statement)
 
-      serializeEqualMultiple(store, 'namespaces/with-base', ['n3'], serializer => {
+      // Prefixes are N3-specific, but semantic content should serialize correctly in all formats
+      serializeEqualMultiple(store, 'namespaces/with-base', ['n3', 'nt', 'rdf'], serializer => {
         serializer.setBase('http://example.com/')
       })
     })
@@ -31,7 +32,8 @@ describe('namespaces and prefixes', () => {
       const store = graph()
       store.add(statement)
 
-      serializeEqualMultiple(store, 'namespaces/without-base', ['n3'])
+      // Prefixes are N3-specific, but semantic content should serialize correctly in all formats
+      serializeEqualMultiple(store, 'namespaces/without-base', ['n3', 'nt', 'rdf'])
     })
   })
 
@@ -46,7 +48,8 @@ describe('namespaces and prefixes', () => {
       const store = graph()
       store.add(statement)
 
-      serializeEqualMultiple(store, 'namespaces/disable-default', ['n3'], serializer => {
+      // Prefixes are N3-specific, but semantic content should serialize correctly in all formats
+      serializeEqualMultiple(store, 'namespaces/disable-default', ['n3', 'nt', 'rdf'], serializer => {
         serializer.setBase('http://example.com/')
         serializer.setFlags('d')
       })
@@ -64,7 +67,8 @@ describe('namespaces and prefixes', () => {
       const store = graph()
       store.add(statement)
 
-      serializeEqualMultiple(store, 'namespaces/trailing-slash', ['n3'], serializer => {
+      // Prefixes are N3-specific, but semantic content should serialize correctly in all formats
+      serializeEqualMultiple(store, 'namespaces/trailing-slash', ['n3', 'nt', 'rdf'], serializer => {
         serializer.setPrefix('exa', 'http://example.com/')
       })
     })
@@ -79,7 +83,8 @@ describe('namespaces and prefixes', () => {
       const store = graph()
       store.add(statement)
 
-      serializeEqualMultiple(store, 'namespaces/empty-local', ['n3'], serializer => {
+      // Prefixes are N3-specific, but semantic content should serialize correctly in all formats
+      serializeEqualMultiple(store, 'namespaces/empty-local', ['n3', 'nt', 'rdf'], serializer => {
         serializer.setPrefix('exa', 'http://example.com/#')
       })
     })
@@ -94,7 +99,8 @@ describe('namespaces and prefixes', () => {
       const store = graph()
       store.add(statement)
 
-      serializeEqualMultiple(store, 'namespaces/iri-escaping', ['n3'])
+      // Prefixes are N3-specific, but semantic content should serialize correctly in all formats
+      serializeEqualMultiple(store, 'namespaces/iri-escaping', ['n3', 'nt', 'rdf'])
     })
   })
 
@@ -111,6 +117,7 @@ describe('namespaces and prefixes', () => {
       )
     )
 
-    serializeEqualMultiple(store, 'namespaces/prefix-selection', ['n3'])
+    // Prefixes are N3-specific, but semantic content should serialize correctly in all formats
+    serializeEqualMultiple(store, 'namespaces/prefix-overlapping', ['n3', 'nt', 'rdf'])
   })
 })

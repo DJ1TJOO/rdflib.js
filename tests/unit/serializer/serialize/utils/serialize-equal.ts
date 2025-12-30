@@ -12,7 +12,7 @@ import {
   SerializerFactory
 } from './serializer-factories'
 
-async function serializeEqual(
+function serializeEqual(
   factory: SerializerFactory,
   store: Formula,
   file: string,
@@ -24,9 +24,25 @@ async function serializeEqual(
   const serializedString = serializer.serialize(store.statements)
 
   const expectedPath = path.join(__dirname, '..', 'expected', file)
-  const expected = fs.readFileSync(expectedPath, 'utf-8').toString()
+  const expected = fs.readFileSync(expectedPath).toString()
 
   expect(serializedString).to.equal(expected)
+}
+
+function serializeError(
+  factory: SerializerFactory,
+  store: Formula,
+  error: Error,
+  configure?: (serializer: AbstractSerializer) => void
+) {
+  const serializer = factory(store)
+  configure?.(serializer)
+
+  try {
+    serializer.serialize(store.statements)
+  } catch (err) {
+    expect(err).to.be.an.instanceOf(Error).and.to.have.property('message', error.message)
+  }
 }
 
 const fileTypeFactoryMapping: Record<string, SerializerFactory[]> = {
@@ -45,6 +61,20 @@ export function serializeEqualMultiple(
   for (const { factory, type } of flatFactories) {
     it(`${type} using ${factory.name.replace('create', '')}`, () => {
       serializeEqual(factory, store, `${file}.${type}`, configure)
+    })
+  }
+}
+
+export function serializeErrorMultiple(
+  store: Formula,
+  error: Error,
+  factories: (keyof typeof fileTypeFactoryMapping)[],
+  configure?: (serializer: AbstractSerializer) => void
+) {
+  const flatFactories = factories.flatMap(type => fileTypeFactoryMapping[type].map(factory => ({ factory, type })))
+  for (const { factory, type } of flatFactories) {
+    it(`Expected error: ${error.message} for ${type} using ${factory.name.replace('create', '')}`, () => {
+      serializeError(factory, store, error, configure)
     })
   }
 }

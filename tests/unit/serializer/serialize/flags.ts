@@ -1,6 +1,6 @@
 import { graph, lit, st, sym } from '../../../../src'
 
-import { serializeEqualMultiple } from './utils/serialize-equal'
+import { serializeEqualMultiple, serializeErrorMultiple } from './utils/serialize-equal'
 
 describe('flags', () => {
   describe('x flag - suppress native numbers', () => {
@@ -14,7 +14,8 @@ describe('flags', () => {
       const store = graph()
       store.add(statement)
 
-      serializeEqualMultiple(store, 'flags/x-flag', ['n3'], serializer => {
+      // Used by N3 and NTriples serializers. Ignored by XML serializer.
+      serializeEqualMultiple(store, 'flags/x-flag', ['n3', 'nt', 'rdf'], serializer => {
         serializer.setFlags('x')
       })
     })
@@ -29,7 +30,8 @@ describe('flags', () => {
       const store = graph()
       store.add(statement)
 
-      serializeEqualMultiple(store, 'flags/x-flag-double', ['n3'], serializer => {
+      // Used by N3 and NTriples serializers. Ignored by XML serializer.
+      serializeEqualMultiple(store, 'flags/x-flag-double', ['n3', 'nt', 'rdf'], serializer => {
         serializer.setFlags('x')
       })
     })
@@ -44,7 +46,8 @@ describe('flags', () => {
       const store = graph()
       store.add(statement)
 
-      serializeEqualMultiple(store, 'flags/x-flag-decimal', ['n3'], serializer => {
+      // Used by N3 and NTriples serializers. Ignored by XML serializer.
+      serializeEqualMultiple(store, 'flags/x-flag-decimal', ['n3', 'nt', 'rdf'], serializer => {
         serializer.setFlags('x')
       })
     })
@@ -59,7 +62,8 @@ describe('flags', () => {
       const store = graph()
       store.add(statement)
 
-      serializeEqualMultiple(store, 'flags/x-flag-boolean', ['n3'], serializer => {
+      // Used by N3 and NTriples serializers. Ignored by XML serializer.
+      serializeEqualMultiple(store, 'flags/x-flag-boolean', ['n3', 'nt', 'rdf'], serializer => {
         serializer.setFlags('x')
       })
     })
@@ -76,7 +80,8 @@ describe('flags', () => {
       const store = graph()
       store.add(statement)
 
-      serializeEqualMultiple(store, 'flags/n-flag', ['n3'], serializer => {
+      // Used by N3 and NTriples serializers. Ignored by XML serializer.
+      serializeEqualMultiple(store, 'flags/n-flag', ['n3', 'nt', 'rdf'], serializer => {
         serializer.setFlags('n')
       })
     })
@@ -93,7 +98,8 @@ describe('flags', () => {
       const store = graph()
       store.add(statement)
 
-      serializeEqualMultiple(store, 'flags/e-flag', ['n3'], serializer => {
+      // Used by N3 and NTriples serializers. Ignored by XML serializer.
+      serializeEqualMultiple(store, 'flags/e-flag', ['n3', 'nt', 'rdf'], serializer => {
         serializer.setFlags('e')
       })
     })
@@ -110,7 +116,8 @@ describe('flags', () => {
       const store = graph()
       store.add(statement)
 
-      serializeEqualMultiple(store, 'flags/r-flag', ['n3'], serializer => {
+      // Used by N3, NTriples, and XML serializers (via explicitURI).
+      serializeEqualMultiple(store, 'flags/r-flag', ['n3', 'nt', 'rdf'], serializer => {
         serializer.setBase('http://example.com/')
         serializer.setFlags('r')
       })
@@ -147,7 +154,8 @@ describe('flags', () => {
       const store = graph()
       store.add(statement)
 
-      serializeEqualMultiple(store, 'flags/o-flag', ['n3'], serializer => {
+      // Used by N3 serializer only. Ignored by NTriples and XML serializers.
+      serializeEqualMultiple(store, 'flags/o-flag', ['n3', 'nt', 'rdf'], serializer => {
         serializer.setPrefix('exa', 'http://example.com/')
         serializer.setFlags('o')
       })
@@ -165,7 +173,8 @@ describe('flags', () => {
       const store = graph()
       store.add(statement)
 
-      serializeEqualMultiple(store, 'flags/s-flag', ['n3'], serializer => {
+      // Used by N3 serializer only. Ignored by NTriples and XML serializers.
+      serializeEqualMultiple(store, 'flags/s-flag', ['n3', 'nt', 'rdf'], serializer => {
         serializer.setPrefix('exa', 'http://example.com/')
         serializer.setFlags('s')
       })
@@ -183,7 +192,8 @@ describe('flags', () => {
       const store = graph()
       store.add(statement)
 
-      serializeEqualMultiple(store, 'flags/t-flag', ['n3'], serializer => {
+      // Used by N3 serializer only. Ignored by NTriples and XML serializers.
+      serializeEqualMultiple(store, 'flags/t-flag', ['n3', 'nt', 'rdf'], serializer => {
         serializer.setPrefix('exa', 'http://example.com/')
         serializer.setFlags('t')
       })
@@ -201,7 +211,8 @@ describe('flags', () => {
       const store = graph()
       store.add(statement)
 
-      serializeEqualMultiple(store, 'flags/i-flag', ['n3'], serializer => {
+      // Used by N3 serializer only. Ignored by NTriples and XML serializers.
+      serializeEqualMultiple(store, 'flags/i-flag', ['n3', 'nt', 'rdf'], serializer => {
         serializer.setPrefix('exa', 'http://example.com/')
         serializer.setFlags('i')
       })
@@ -219,7 +230,8 @@ describe('flags', () => {
       const store = graph()
       store.add(statement)
 
-      serializeEqualMultiple(store, 'flags/d-flag', ['n3'], serializer => {
+      // Used by N3 and XML serializers. Ignored by NTriples serializer.
+      serializeEqualMultiple(store, 'flags/d-flag', ['n3', 'nt', 'rdf'], serializer => {
         serializer.setBase('http://example.com/#')
         serializer.setPrefix('exa', 'http://example.com/')
         serializer.setFlags('d')
@@ -238,7 +250,8 @@ describe('flags', () => {
       const store = graph()
       store.add(statement)
 
-      serializeEqualMultiple(store, 'flags/p-flag', ['n3'], serializer => {
+      // Used by N3 and NTriples serializers. Ignored by XML serializer.
+      serializeEqualMultiple(store, 'flags/p-flag', ['n3', 'nt', 'rdf'], serializer => {
         serializer.setFlags('p')
       })
     })
@@ -255,7 +268,31 @@ describe('flags', () => {
       const store = graph()
       store.add(statement)
 
-      serializeEqualMultiple(store, 'flags/slash-flag', ['n3'], serializer => {
+      // Used by N3 and XML serializers. Ignored by NTriples serializer.
+      serializeEqualMultiple(store, 'flags/slash-flag', ['n3', 'nt'], serializer => {
+        serializer.setFlags('/')
+      })
+      serializeErrorMultiple(
+        store,
+        new Error('Cannot make qname out of <http://example.com/predicate>'),
+        ['rdf'],
+        serializer => {
+          serializer.setFlags('/')
+        }
+      )
+    })
+    describe('should split on # with / flag', () => {
+      const statement = st(
+        sym('http://example.com#subject'),
+        sym('http://example.com#predicate'),
+        sym('http://example.com#path/to/resource')
+      )
+
+      const store = graph()
+      store.add(statement)
+
+      // Used by N3 and XML serializers. Ignored by NTriples serializer.
+      serializeEqualMultiple(store, 'flags/slash-flag-hash', ['n3', 'nt', 'rdf'], serializer => {
         serializer.setFlags('/')
       })
     })
@@ -272,7 +309,8 @@ describe('flags', () => {
       const store = graph()
       store.add(statement)
 
-      serializeEqualMultiple(store, 'flags/k-flag', ['n3'], serializer => {
+      // Used by N3 serializer only. Ignored by NTriples and XML serializers.
+      serializeEqualMultiple(store, 'flags/k-flag', ['n3', 'nt', 'rdf'], serializer => {
         serializer.setBase('http://example.com/')
         serializer.setFlags('k')
       })
@@ -290,7 +328,7 @@ describe('flags', () => {
       const store = graph()
       store.add(statement)
 
-      serializeEqualMultiple(store, 'flags/combined-flags', ['n3'], serializer => {
+      serializeEqualMultiple(store, 'flags/combined-flags', ['n3', 'nt', 'rdf'], serializer => {
         serializer.setFlags('xt s')
       })
     })

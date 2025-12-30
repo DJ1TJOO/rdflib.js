@@ -1,0 +1,6 @@
+exa:subject2 exa:predicate "text with \"quotes\"" .
+exa:subject3 exa:predicate """multiline
+text
+with
+newlines""" .
+exa:subject exa:predicate "text with\nnewline" .

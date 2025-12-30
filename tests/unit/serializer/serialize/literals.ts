@@ -9,7 +9,7 @@ describe('should serialize a literal', () => {
     const store = graph()
     store.add(statement)
 
-    serializeEqualMultiple(store, 'literal/literal', ['n3'])
+    serializeEqualMultiple(store, 'literal/literal', ['n3', 'nt', 'rdf'])
   })
 
   describe('as a multiline string', () => {
@@ -22,7 +22,7 @@ describe('should serialize a literal', () => {
     const store = graph()
     store.add(statement)
 
-    serializeEqualMultiple(store, 'literal/multiline', ['n3'])
+    serializeEqualMultiple(store, 'literal/multiline', ['n3', 'nt', 'rdf'])
   })
 
   describe('with a language tag', () => {
@@ -35,7 +35,7 @@ describe('should serialize a literal', () => {
     const store = graph()
     store.add(statement)
 
-    serializeEqualMultiple(store, 'literal/lang', ['n3'])
+    serializeEqualMultiple(store, 'literal/lang', ['n3', 'nt', 'rdf'])
   })
 
   describe('as an integer', () => {
@@ -48,7 +48,7 @@ describe('should serialize a literal', () => {
     const store = graph()
     store.add(statement)
 
-    serializeEqualMultiple(store, 'literal/integer', ['n3'])
+    serializeEqualMultiple(store, 'literal/integer', ['n3', 'nt', 'rdf'])
   })
 
   describe('as a decimal', () => {
@@ -61,7 +61,7 @@ describe('should serialize a literal', () => {
     const store = graph()
     store.add(statement)
 
-    serializeEqualMultiple(store, 'literal/decimal', ['n3'])
+    serializeEqualMultiple(store, 'literal/decimal', ['n3', 'nt', 'rdf'])
   })
 
   describe('as a double', () => {
@@ -74,7 +74,7 @@ describe('should serialize a literal', () => {
     const store = graph()
     store.add(statement)
 
-    serializeEqualMultiple(store, 'literal/double', ['n3'])
+    serializeEqualMultiple(store, 'literal/double', ['n3', 'nt', 'rdf'])
   })
 
   describe('as a boolean (true)', () => {
@@ -87,7 +87,7 @@ describe('should serialize a literal', () => {
     const store = graph()
     store.add(statement)
 
-    serializeEqualMultiple(store, 'literal/boolean-true', ['n3'])
+    serializeEqualMultiple(store, 'literal/boolean-true', ['n3', 'nt', 'rdf'])
   })
 
   describe('as a boolean (false)', () => {
@@ -100,7 +100,7 @@ describe('should serialize a literal', () => {
     const store = graph()
     store.add(statement)
 
-    serializeEqualMultiple(store, 'literal/boolean-false', ['n3'])
+    serializeEqualMultiple(store, 'literal/boolean-false', ['n3', 'nt', 'rdf'])
   })
 
   describe('as a dateTime', () => {
@@ -113,7 +113,7 @@ describe('should serialize a literal', () => {
     const store = graph()
     store.add(statement)
 
-    serializeEqualMultiple(store, 'literal/datetime', ['n3'])
+    serializeEqualMultiple(store, 'literal/datetime', ['n3', 'nt', 'rdf'])
   })
 
   describe('double edge cases', () => {
@@ -169,7 +169,7 @@ describe('should serialize a literal', () => {
         )
       )
 
-      serializeEqualMultiple(store, 'literal/double-edge-cases', ['n3'])
+      serializeEqualMultiple(store, 'literal/double-edge-cases', ['n3', 'nt', 'rdf'])
     })
   })
 
@@ -186,7 +186,7 @@ describe('should serialize a literal', () => {
         )
       )
 
-      serializeEqualMultiple(store, 'literal/special-chars', ['n3'])
+      serializeEqualMultiple(store, 'literal/special-chars', ['n3', 'nt', 'rdf'])
     })
   })
 })

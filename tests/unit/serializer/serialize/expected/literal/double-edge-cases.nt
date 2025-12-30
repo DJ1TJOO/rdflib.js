@@ -1,0 +1,7 @@
+exa:subject2 exa:predicate 123.0e0 .
+exa:subject3 exa:predicate 0.123e2 .
+exa:subject4 exa:predicate 0.123e-2 .
+exa:subject5 exa:predicate 0.123E2 .
+exa:subject6 exa:predicate 123e2 .
+exa:subject7 exa:predicate 123e-2 .
+exa:subject exa:predicate 0.123e0 .

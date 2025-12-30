@@ -16,7 +16,7 @@ describe('named graphs', () => {
     const store = graph()
     store.add(statement)
 
-    serializeEqualMultiple(store, 'named-graphs/single', ['n3'])
+    serializeEqualMultiple(store, 'named-graphs/single', ['n3', 'nt', 'rdf'])
   })
 
   describe('should serialize multiple statements in different graphs', () => {
@@ -40,6 +40,6 @@ describe('named graphs', () => {
       )
     )
 
-    serializeEqualMultiple(store, 'named-graphs/multiple', ['n3'])
+    serializeEqualMultiple(store, 'named-graphs/multiple', ['n3', 'nt', 'rdf'])
   })
 })

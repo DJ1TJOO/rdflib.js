@@ -14,7 +14,8 @@ describe('special predicates', () => {
       const store = graph()
       store.add(statement)
 
-      serializeEqualMultiple(store, 'special-predicates/rdf-type', ['n3'])
+      // Abbreviations (a, =, =>) are N3-specific, but semantic content should serialize correctly in all formats
+      serializeEqualMultiple(store, 'special-predicates/rdf-type', ['n3', 'nt', 'rdf'])
     })
 
     describe('should not abbreviate rdf:type with t flag', () => {
@@ -27,7 +28,8 @@ describe('special predicates', () => {
       const store = graph()
       store.add(statement)
 
-      serializeEqualMultiple(store, 'special-predicates/rdf-type-no-abbrev', ['n3'], serializer => {
+      // Abbreviations are N3-specific, but semantic content should serialize correctly in all formats
+      serializeEqualMultiple(store, 'special-predicates/rdf-type-no-abbrev', ['n3', 'nt', 'rdf'], serializer => {
         serializer.setFlags('t')
       })
     })
@@ -44,7 +46,8 @@ describe('special predicates', () => {
       const store = graph()
       store.add(statement)
 
-      serializeEqualMultiple(store, 'special-predicates/owl-sameas', ['n3'])
+      // Abbreviations (a, =, =>) are N3-specific, but semantic content should serialize correctly in all formats
+      serializeEqualMultiple(store, 'special-predicates/owl-sameas', ['n3', 'nt', 'rdf'])
     })
 
     describe('should not abbreviate owl:sameAs with s flag', () => {
@@ -57,7 +60,8 @@ describe('special predicates', () => {
       const store = graph()
       store.add(statement)
 
-      serializeEqualMultiple(store, 'special-predicates/owl-sameas-no-abbrev', ['n3'], serializer => {
+      // Abbreviations are N3-specific, but semantic content should serialize correctly in all formats
+      serializeEqualMultiple(store, 'special-predicates/owl-sameas-no-abbrev', ['n3', 'nt', 'rdf'], serializer => {
         serializer.setFlags('s')
       })
     })
@@ -74,7 +78,8 @@ describe('special predicates', () => {
       const store = graph()
       store.add(statement)
 
-      serializeEqualMultiple(store, 'special-predicates/log-implies', ['n3'])
+      // Abbreviations (a, =, =>) are N3-specific, but semantic content should serialize correctly in all formats
+      serializeEqualMultiple(store, 'special-predicates/log-implies', ['n3', 'nt', 'rdf'])
     })
 
     describe('should not abbreviate log:implies with i flag', () => {
@@ -87,7 +92,8 @@ describe('special predicates', () => {
       const store = graph()
       store.add(statement)
 
-      serializeEqualMultiple(store, 'special-predicates/log-implies-no-abbrev', ['n3'], serializer => {
+      // Abbreviations are N3-specific, but semantic content should serialize correctly in all formats
+      serializeEqualMultiple(store, 'special-predicates/log-implies-no-abbrev', ['n3', 'nt', 'rdf'], serializer => {
         serializer.setFlags('i')
       })
     })
