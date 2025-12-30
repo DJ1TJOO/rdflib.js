@@ -272,14 +272,9 @@ describe('flags', () => {
       serializeEqualMultiple(store, 'flags/slash-flag', ['n3', 'nt'], serializer => {
         serializer.setFlags('/')
       })
-      serializeErrorMultiple(
-        store,
-        new Error('Cannot make qname out of <http://example.com/predicate>'),
-        ['rdf'],
-        serializer => {
-          serializer.setFlags('/')
-        }
-      )
+      serializeErrorMultiple(store, 'Cannot make qname out of <http://example.com/predicate>', ['rdf'], serializer => {
+        serializer.setFlags('/')
+      })
     })
     describe('should split on # with / flag', () => {
       const statement = st(

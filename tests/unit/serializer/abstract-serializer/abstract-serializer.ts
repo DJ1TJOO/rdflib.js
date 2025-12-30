@@ -1,0 +1,10 @@
+describe('AbstractSerializer', () => {
+  require('./constructor')
+  require('./set-base')
+  require('./set-flags')
+  require('./to-str')
+  require('./from-str')
+  require('./prefixes')
+  require('./make-up-prefix')
+  require('./check-integrity')
+})

@@ -11,7 +11,7 @@ describe('variables', () => {
     store.add(statement)
 
     serializeEqualMultiple(store, 'variables/object', ['n3', 'nt'])
-    serializeErrorMultiple(store, new Error("Can't serialize object of type Variable into XML"), ['rdf'])
+    serializeErrorMultiple(store, "Can't serialize object of type Variable into XML", ['rdf'])
   })
 
   describe('should serialize a variable as predicate', () => {
@@ -22,7 +22,7 @@ describe('variables', () => {
     store.add(statement)
 
     serializeEqualMultiple(store, 'variables/predicate', ['n3', 'nt'])
-    serializeErrorMultiple(store, new Error('Cannot make qname out of <varid:predicate>'), ['rdf'])
+    serializeErrorMultiple(store, 'Cannot make qname out of <varid:predicate>', ['rdf'])
   })
 
   describe('should serialize a variable as subject', () => {
@@ -32,7 +32,6 @@ describe('variables', () => {
     const store = graph()
     store.add(statement)
 
-    serializeEqualMultiple(store, 'variables/subject', ['n3', 'nt'])
-    serializeErrorMultiple(store, new Error('Cannot make qname out of <varid:subject>'), ['rdf'])
+    serializeEqualMultiple(store, 'variables/subject', ['n3', 'nt', 'rdf'])
   })
 })
