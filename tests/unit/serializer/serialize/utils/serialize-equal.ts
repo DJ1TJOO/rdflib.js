@@ -10,7 +10,7 @@ import {
   createOldXMLSerializer,
   createXMLSerializer,
   SerializerFactory
-} from './serializer-factories'
+} from '../../utils/serializer-factories'
 
 function serializeEqual(
   factory: SerializerFactory,
