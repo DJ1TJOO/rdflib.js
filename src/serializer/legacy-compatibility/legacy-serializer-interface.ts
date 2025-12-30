@@ -7,12 +7,12 @@ import { DefaultGraph } from '../../tf-types'
 import { SubjectType } from '../../types'
 import { createXSD } from '../../xsd'
 
-export interface LegacySerializerPrefixes extends Record<string, string> {}
-export interface LegacySerializerNamespaces extends Record<string, string> {}
-export interface LegacySerializerNamespacesUsed extends Record<string, boolean> {}
-export interface LegacySerializerIncoming extends Record<string, SubjectType[]> {}
+interface LegacySerializerPrefixes extends Record<string, string> {}
+interface LegacySerializerNamespaces extends Record<string, string> {}
+interface LegacySerializerNamespacesUsed extends Record<string, boolean> {}
+interface LegacySerializerIncoming extends Record<string, SubjectType[]> {}
 
-export interface LegacyRootSubjectsStats {
+interface LegacyRootSubjectsStats {
   roots: SubjectType[]
   subjects: Record<string, Statement[]>
   rootsHash: Record<string, boolean>
