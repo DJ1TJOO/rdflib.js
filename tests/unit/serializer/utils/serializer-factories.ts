@@ -5,8 +5,8 @@ import {
   NTriplesSerializer,
   Statement,
   XMLSerializer
-} from '../../../../../src'
-import OldSerializer, { type Serializer } from '../../../../../src/serializer/_old/serializer-old'
+} from '../../../../src'
+import OldSerializer, { type Serializer } from '../../../../src/serializer/_old/serializer-old'
 
 export type SerializerFactory = (store: Formula) => AbstractSerializer
 
@@ -20,6 +20,20 @@ export function createNTriplesSerializer(store: Formula): AbstractSerializer {
 
 export function createXMLSerializer(store: Formula): AbstractSerializer {
   return new XMLSerializer(store)
+}
+
+class EmptySerializer extends AbstractSerializer {
+  constructor(store: Formula) {
+    super(store)
+  }
+
+  serialize(sts: Statement[]): string {
+    throw new Error('Not implemented')
+  }
+}
+
+export function createEmptySerializer(store: Formula): AbstractSerializer {
+  return new EmptySerializer(store)
 }
 
 class OldSerializerN3 extends AbstractSerializer {
