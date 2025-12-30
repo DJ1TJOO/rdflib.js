@@ -128,7 +128,7 @@
     "test:unit:egp": "mocha --require ./tests/babel-register.js tests/unit/fetcher-egp-test.js",
     "test:unit:dev": "mocha --watch --growl --require ./tests/babel-register.js tests/unit/**-test.js",
     "coverage:test:unit": "npx nyc@latest npm run test:unit",
-    "coverage:test:unit:serializer": "npx nyc@latest npm run test:unit:serializer",
+		"coverage:test:unit:serializer": "npx nyc@latest -n src/serializer/**/* -x src/serializer/legacy-compatibility/**/* -x src/serializer/write-store-serializer.ts -x src/serializer/jsonld-serializer.ts npm run test:unit:serializer",
     "watch": "babel src --extensions \".ts,.js\" --env-name esm -d esm --watch & babel src --extensions \".ts,.js\" -d lib --watch"
   },
   "files": [
