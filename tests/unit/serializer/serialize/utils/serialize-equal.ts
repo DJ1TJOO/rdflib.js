@@ -32,17 +32,15 @@ function serializeEqual(
 function serializeError(
   factory: SerializerFactory,
   store: Formula,
-  error: Error,
+  error: string,
   configure?: (serializer: AbstractSerializer) => void
 ) {
   const serializer = factory(store)
   configure?.(serializer)
 
-  try {
+  expect(() => {
     serializer.serialize(store.statements)
-  } catch (err) {
-    expect(err).to.be.an.instanceOf(Error).and.to.have.property('message', error.message)
-  }
+  }).to.throw(error)
 }
 
 const fileTypeFactoryMapping: Record<string, SerializerFactory[]> = {
@@ -67,13 +65,13 @@ export function serializeEqualMultiple(
 
 export function serializeErrorMultiple(
   store: Formula,
-  error: Error,
+  error: string,
   factories: (keyof typeof fileTypeFactoryMapping)[],
   configure?: (serializer: AbstractSerializer) => void
 ) {
   const flatFactories = factories.flatMap(type => fileTypeFactoryMapping[type].map(factory => ({ factory, type })))
   for (const { factory, type } of flatFactories) {
-    it(`Expected error: ${error.message} for ${type} using ${factory.name.replace('create', '')}`, () => {
+    it(`Expected error: ${error} for ${type} using ${factory.name.replace('create', '')}`, () => {
       serializeError(factory, store, error, configure)
     })
   }
