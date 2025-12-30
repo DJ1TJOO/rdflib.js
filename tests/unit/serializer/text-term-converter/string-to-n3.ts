@@ -71,7 +71,7 @@ describe('stringToN3', () => {
   })
 
   it('should not escape unicode when e flag is not set', () => {
-    serializer.setFlags('z') // @TODO(serializer-refactor): When flags is empty '', e is default, this should be fixed, inversing the flag
+    serializer.setFlags('a') // @TODO(serializer-refactor): When flags is empty '', e is default, this should be fixed, inversing the flag
     const result = converter.stringToN3('test\u00A0value')
 
     expect(result).to.include('\u00A0')
