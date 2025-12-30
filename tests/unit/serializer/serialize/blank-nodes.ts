@@ -1,8 +1,13 @@
-import { blankNode, graph, st, sym } from '../../../../src'
+import { BlankNode, blankNode, graph, st, sym } from '../../../../src'
 
 import { serializeEqualMultiple } from './utils/serialize-equal'
 
 describe('blank nodes', () => {
+  BlankNode.nextId = 0
+  afterEach(() => {
+    BlankNode.nextId = 0
+  })
+
   describe('should serialize a blank node as subject', () => {
     const bnode = blankNode('b1')
     const statement = st(bnode, sym('http://example.com/predicate'), sym('http://example.com/object'))
