@@ -42,7 +42,7 @@ export class NTriplesSerializer extends AbstractSerializer {
       var s = ''
       s += termToNT(st.subject) + ' '
       s += termToNT(st.predicate) + ' '
-      s += termToNT(st.object as Node) + ' ' // @TODO(serializer-refactor): Types of Collection generic T do not match, but is not important for this method
+      s += termToNT(st.object) + ' '
       if (this.flags.indexOf('q') >= 0) {
         // Do quads not nrtiples
         s += termToNT(st.why) + ' '

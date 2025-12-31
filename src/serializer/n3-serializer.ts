@@ -181,7 +181,7 @@ export class N3Serializer extends AbstractSerializer {
           results.push(predMap[st.predicate.uri] ? predMap[st.predicate.uri] : termToN3(st.predicate, stats))
         }
         lastPred = st.predicate.uri
-        objects.push(objectTree(st.object as Node, stats)) // @TODO(serializer-refactor): Types of Collection generic T do not match, but is not important for this method
+        objects.push(objectTree(st.object, stats))
       }
       results = results.concat([objects])
       return results

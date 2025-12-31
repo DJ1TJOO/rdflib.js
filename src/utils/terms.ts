@@ -1,9 +1,10 @@
 import {
   ObjectType, CollectionTermType, NamedNodeTermType, VariableTermType, BlankNodeTermType, LiteralTermType, GraphTermType, DefaultGraphTermType,
 } from '../types'
-import Collection from '../collection'
+import Collection, { CollectionType } from '../collection'
 import IndexedFormula from '../store'
 import Statement from '../statement'
+import Node from '../node'
 import {
   BlankNode,
   Quad_Graph,
@@ -28,7 +29,7 @@ export function isStore(obj): obj is IndexedFormula {
 }
 
 /** TypeGuard for RDFLib Collections */
-export function isCollection(obj: any): obj is Collection<any> {
+export function isCollection<C extends Node = CollectionType>(obj: any): obj is Collection<C> {
   return isTerm(obj)
     && (obj as Term).termType === CollectionTermType
 }

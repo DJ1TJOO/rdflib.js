@@ -2,15 +2,15 @@ import RdflibBlankNode from './blank-node'
 import ClassOrder from './class-order'
 import Literal from './literal'
 import Node from './node-internal'
+import { Term } from './tf-types'
 import {
   Bindings,
   CollectionTermType,
   FromValueReturns,
   ValueType
 } from './types'
-import Variable from './variable'
 import { isTerm } from './utils/terms'
-import { Term } from './tf-types'
+import Variable from './variable'
 
 /**
  * Creates an RDF Node from a native javascript value.
@@ -36,13 +36,15 @@ export function fromValue <T extends FromValueReturns<C> = any, C extends Node =
   return Literal.fromValue<any>(value)
 }
 
+export type CollectionType = (Node | RdflibBlankNode | Collection<CollectionType> | Literal | Variable) & Node
+
 /**
  * A collection of other RDF nodes
  *
  * Use generic T to control the contents of the array.
  */
 export default class Collection<
-  T extends Node = Node | RdflibBlankNode | Collection<any> | Literal | Variable
+  T extends Node = CollectionType
 > extends Node implements Term {
   static termType: typeof CollectionTermType = CollectionTermType
   termType: typeof CollectionTermType = CollectionTermType
@@ -101,10 +103,10 @@ export default class Collection<
    * Creates a new Collection with the substituting bindings applied
    * @param bindings - The bindings to substitute
    */
-  substitute (bindings: Bindings) {
+  substitute <S extends Node = Collection<T>>(bindings: Bindings): S {
     const elementsCopy = this.elements.map((ea) => ea.substitute(bindings))
 
-    return new Collection(elementsCopy) as Collection<Node | Collection<any> | Literal | Variable>
+    return new Collection(elementsCopy) as unknown as S
   }
 
   toNT () {
