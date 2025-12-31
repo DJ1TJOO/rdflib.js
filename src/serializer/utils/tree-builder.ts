@@ -50,12 +50,11 @@ export class TreeBuilder {
           allBnodes[y.toNT()] = true
         } else if (y.termType === 'Collection') {
           y.elements.forEach(function (z) {
-            // @TODO(serializer-refactor): Types of Collection generic T do not match, but is not important for this method
-            checkMentions(z as Node) // bnodes in collections important
+            checkMentions(z) // bnodes in collections important
           })
         }
       })
-      checkMentions(sts[i].object as Node) // @TODO(serializer-refactor): Types of Collection generic T do not match, but is not important for this method
+      checkMentions(sts[i].object)
       var ss = subjects[this.serializer.toStr(st.subject)] // Statements with this as subject
       if (!ss) ss = []
       ss.push(st)
