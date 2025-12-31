@@ -1,9 +1,9 @@
-import chai, {expect} from 'chai'
+import {use, expect} from 'chai'
 import sinon from 'sinon'
 import sinonChai from 'sinon-chai'
 import {graph, parse, st, sym} from "../../src/";
 
-chai.use(sinonChai)
+use(sinonChai)
 
 describe('IndexedFormula', () => {
 

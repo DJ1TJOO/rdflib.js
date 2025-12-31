@@ -15,5 +15,5 @@
     ],
     "outDir": "./temp_ts_output"
   },
-  "include": ["src/**/*", "tests/**/*", "types-compiler/**/*.d.ts"]
+  "include": ["src/**/*"]
 }
