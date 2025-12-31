@@ -46,7 +46,7 @@ describe('prefixes', () => {
       expect(serializer.namespaces['example']).to.equal('http://example.org/')
       expect(serializer.prefixes['http://example.org/']).to.equal('example')
 
-      // @TODO(serializer-refactor): Should setPrefix also delete the existing namespace, yes to keep the integrity?
+      // @TODO(serializer-refactor): This test is broken until changes made in the abstract-serializer.ts file, see L127
       // expect(serializer.namespaces['ex']).to.be.undefined
     })
 

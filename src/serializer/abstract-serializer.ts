@@ -43,8 +43,10 @@ export abstract class AbstractSerializer {
       const uri = solidNs()[nsKeys[i]]('')
       const prefix = nsKeys[i]
 
-      // @TODO(serializer-refactor): How should we handle when multiple prefixes map to the same namespace? the old code would break the integrity of prefixes and namespaces
-      this.suggestPrefix(prefix, uri)
+      // @TODO(serializer-refactor): How should we handle when multiple prefixes map to the same namespace? This will break the integrity of prefixes and namespaces
+      // alternative: this.suggestPrefix(prefix, uri), since the serializer use the prefixes object any way, this will only change the priortity order of the solidNs from last to first
+      this.prefixes[uri] = prefix
+      this.namespaces[prefix] = uri
     }
 
     this.suggestPrefix('rdf', 'http://www.w3.org/1999/02/22-rdf-syntax-ns#') // XML code assumes this!
@@ -125,7 +127,8 @@ export abstract class AbstractSerializer {
     // @TODO(serializer-refactor): Should setPrefix also delete the existing namespace, yes to keep the integrity?
     // remove any existing prefix targeting this uri
     // for (let existingPrefix in this.namespaces) {
-    //   if (this.namespaces[existingPrefix] == uri) delete this.namespaces[existingPrefix]
+    //   if (this.namespaces[existingPrefix] == uri)
+    //     delete this.namespaces[existingPrefix];
     // }
 
     // remove any existing mapping for this prefix
