@@ -41,4 +41,15 @@ describe('collections', () => {
 
     serializeEqualMultiple(store, 'collections/empty', ['n3', 'nt', 'rdf'])
   })
+
+  describe('should serialize a collection with nested collections', () => {
+    const nestedCollection = new Collection([lit('nested1'), lit('nested2')])
+    const collection = new Collection([lit('item1'), nestedCollection, lit('item3')])
+    const statement = st(sym('http://example.com/subject'), sym('http://example.com/predicate'), collection)
+
+    const store = graph()
+    store.add(statement)
+
+    serializeEqualMultiple(store, 'collections/nested', ['n3', 'nt', 'rdf'])
+  })
 })

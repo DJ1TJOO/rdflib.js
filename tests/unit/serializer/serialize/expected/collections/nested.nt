@@ -1,0 +1,11 @@
+_:n0 rdf:first "item3".
+_:n0 rdf:rest rdf:nil.
+_:n2 rdf:first "nested2".
+_:n2 rdf:rest rdf:nil.
+_:n3 rdf:first "nested1".
+_:n3 rdf:rest _:n2.
+_:n1 rdf:first _:n3.
+_:n1 rdf:rest _:n0.
+_:n4 rdf:first "item1".
+_:n4 rdf:rest _:n1.
+exa:subject exa:predicate _:n4 .
