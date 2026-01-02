@@ -1,5 +1,5 @@
 _:n0 rdf:first "item3".
-_:n0 rdf:rest rdf:nill.
+_:n0 rdf:rest rdf:nil.
 _:n1 rdf:first "item2".
 _:n1 rdf:rest _:n0.
 _:n2 rdf:first "item1".
