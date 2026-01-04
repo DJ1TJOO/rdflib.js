@@ -7,7 +7,7 @@
 
 exa:org1
     a foaf:Organization;
-    exa:contact _:n6;
+    exa:contact _:n0;
     exa:foundedBy exa:person1, exa:person2;
     exa:internalData "Internal data";
     exa:members ( _:b1 _:b2 exa:person1 );
@@ -73,7 +73,7 @@ exa:person3
     foaf:age 35;
     foaf:member exa:org2;
     foaf:name "Charlie".
-_:n6
+_:n0
     a exa:ContactInfo;
     exa:related _:b4;
     schema:address _:b4;
@@ -89,5 +89,5 @@ _:b2
     exa:city "Los Angeles";
     exa:state "CA";
     schema:address "456 Oak Ave".
-_:b4 exa:related _:n6; schema:address "789 Pine Rd".
+_:b4 exa:related _:n0; schema:address "789 Pine Rd".
 

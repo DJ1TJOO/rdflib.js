@@ -5,7 +5,7 @@
  xmlns:foaf="http://xmlns.com/foaf/0.1/"
  xmlns:dc="http://purl.org/dc/elements/1.1/">
     <foaf:Organization rdf:about="http://example.com/org1">
-        <exa:contact rdf:nodeID="n6"/>
+        <exa:contact rdf:nodeID="n0"/>
         <exa:foundedBy rdf:resource="http://example.com/person1"/>
         <exa:foundedBy rdf:resource="http://example.com/person2"/>
         <exa:internalData>Internal data</exa:internalData>
@@ -135,7 +135,7 @@ newlines</exa:edgeCase3>
         <foaf:member rdf:resource="http://example.com/org2"/>
         <foaf:name>Charlie</foaf:name>
     </foaf:Person>
-    <exa:ContactInfo rdf:nodeID="n6">
+    <exa:ContactInfo rdf:nodeID="n0">
         <exa:related rdf:nodeID="b4"/>
         <schema:address rdf:nodeID="b4"/>
         <schema:email>contact@example.com</schema:email>
@@ -152,6 +152,6 @@ newlines</exa:edgeCase3>
         <schema:address>456 Oak Ave</schema:address>
     </exa:Address>
     <rdf:Description rdf:nodeID="b4">
-       <exa:related rdf:nodeID="n6"/><schema:address>789 Pine Rd</schema:address>
+       <exa:related rdf:nodeID="n0"/><schema:address>789 Pine Rd</schema:address>
     </rdf:Description>
 </rdf:RDF>
