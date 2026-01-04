@@ -1,0 +1,93 @@
+@prefix dc: <http://purl.org/dc/elements/1.1/>.
+@prefix foaf: <http://xmlns.com/foaf/0.1/>.
+@prefix schema: <http://schema.org/>.
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
+@prefix exa: <http://example.com/>.
+@prefix act: <http://example.com/activity/>.
+
+exa:org1
+    a foaf:Organization;
+    exa:contact _:n6;
+    exa:foundedBy exa:person1, exa:person2;
+    exa:internalData "Internal data";
+    exa:members ( _:b1 _:b2 exa:person1 );
+    dc:description
+        """A company that makes widgets
+and other products.""",
+        """This is a multiline
+description
+with multiple lines
+of text.""";
+    dc:title
+    "Acme Corporation"@en, "Acme Corporation"@fr, "Acme Corporation"@de;
+    foaf:name "Acme Corp".
+exa:org2 a foaf:Organization; exa:foundedBy exa:person3; foaf:name "Tech Inc".
+
+exa:person1
+    a foaf:Person;
+    exa:bio
+        """Alice is a software engineer
+who loves programming
+and open source.""";
+    exa:birthDate "1993-01-15T00:00:00Z"^^xsd:dateTime;
+    exa:complex
+            [
+                a exa:ComplexObject;
+                exa:prop1 "value1";
+                exa:prop2 value2;
+                exa:prop3 _:b1;
+                exa:prop4 exa:person1
+            ];
+    exa:edgeCase1 0.123e2;
+    exa:edgeCase2 123e-2;
+    exa:edgeCase3
+        """text with "quotes" and
+newlines""";
+    exa:height 1.75e0;
+    exa:isActive true;
+    exa:privateNote "This is a private note";
+    exa:project exa:project1, exa:project2, exa:project3;
+    exa:skills ( "JavaScript" "TypeScript" "Python" "Java" );
+    exa:tag "developer", "fullstack", "senior";
+    exa:weight 65.5;
+    schema:address _:b1;
+    schema:email "alice@example.com";
+    foaf:age 30;
+    foaf:knows exa:person2, exa:person3;
+    foaf:member exa:org1;
+    foaf:name "Alice", "Alice"@en, "Alicia"@es.
+exa:person2
+    a foaf:Person;
+    exa:birthDate "1998-05-20T12:30:00Z"^^xsd:dateTime;
+    exa:hobbies ( "Reading" act:Hiking 42 );
+    exa:isActive false;
+    exa:privateNote "Another private note";
+    schema:address _:b2;
+    foaf:age 25;
+    foaf:knows exa:person3;
+    foaf:member exa:org1;
+    foaf:name "Bob"@en, "Robert"@en.
+exa:person3
+    a foaf:Person;
+    exa:nested ( "item1" ( "nested1" "nested2" ) "item3" );
+    foaf:age 35;
+    foaf:member exa:org2;
+    foaf:name "Charlie".
+_:n6
+    a exa:ContactInfo;
+    exa:related _:b4;
+    schema:address _:b4;
+    schema:email "contact@example.com".
+_:b1
+    a exa:Address;
+    exa:city "New York";
+    exa:country "USA";
+    exa:state "NY";
+    schema:address "123 Main St".
+_:b2
+    a exa:Address;
+    exa:city "Los Angeles";
+    exa:state "CA";
+    schema:address "456 Oak Ave".
+_:b4 exa:related _:n6; schema:address "789 Pine Rd".
+

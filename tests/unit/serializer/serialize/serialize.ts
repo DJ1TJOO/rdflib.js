@@ -9,4 +9,5 @@ describe('serialize', () => {
   require('./flags')
   require('./collections')
   require('./named-graphs')
+  require('./big')
 })

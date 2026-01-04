@@ -3,7 +3,9 @@ import { BlankNode, blankNode, graph, st, sym } from '../../../../src'
 import { serializeEqualMultiple } from './utils/serialize-equal'
 
 describe('blank nodes', () => {
-  BlankNode.nextId = 0
+  before(() => {
+    BlankNode.nextId = 0
+  })
   afterEach(() => {
     BlankNode.nextId = 0
   })

@@ -1,0 +1,157 @@
+<rdf:RDF
+ xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+ xmlns:exa="http://example.com/"
+ xmlns:schema="http://schema.org/"
+ xmlns:foaf="http://xmlns.com/foaf/0.1/"
+ xmlns:dc="http://purl.org/dc/elements/1.1/">
+    <foaf:Organization rdf:about="http://example.com/org1">
+        <exa:contact rdf:nodeID="n6"/>
+        <exa:foundedBy rdf:resource="http://example.com/person1"/>
+        <exa:foundedBy rdf:resource="http://example.com/person2"/>
+        <exa:internalData>Internal data</exa:internalData>
+        <exa:members rdf:parseType="Collection">
+                <exa:Address rdf:nodeID="b1">
+                    <exa:city>New York</exa:city>
+                    <exa:country>USA</exa:country>
+                    <exa:state>NY</exa:state>
+                    <schema:address>123 Main St</schema:address>
+                </exa:Address>
+                <exa:Address rdf:nodeID="b2">
+                    <exa:city>Los Angeles</exa:city>
+                    <exa:state>CA</exa:state>
+                    <schema:address>456 Oak Ave</schema:address>
+                </exa:Address>
+                <foaf:Person rdf:about="http://example.com/person1">
+                    <exa:bio>Alice is a software engineer
+who loves programming
+and open source.</exa:bio>
+                    <exa:birthDate rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">1993-01-15T00:00:00Z</exa:birthDate>
+                    <exa:complex rdf:parseType="Resource">
+                        <exa:ComplexObject>
+                            <exa:prop1>value1</exa:prop1>
+                            <exa:prop2 rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">value2</exa:prop2>
+                            <exa:prop3 rdf:nodeID="b1"/>
+                            <exa:prop4 rdf:resource="http://example.com/person1"/>
+                        </exa:ComplexObject>
+                    </exa:complex>
+                    <exa:edgeCase1 rdf:datatype="http://www.w3.org/2001/XMLSchema#double">0.123e2</exa:edgeCase1>
+                    <exa:edgeCase2 rdf:datatype="http://www.w3.org/2001/XMLSchema#double">123e-2</exa:edgeCase2>
+                    <exa:edgeCase3>text with &quot;quotes&quot; and
+newlines</exa:edgeCase3>
+                    <exa:height rdf:datatype="http://www.w3.org/2001/XMLSchema#double">1.75</exa:height>
+                    <exa:isActive rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">1</exa:isActive>
+                    <exa:privateNote>This is a private note</exa:privateNote>
+                    <exa:project rdf:resource="http://example.com/project1"/>
+                    <exa:project rdf:resource="http://example.com/project2"/>
+                    <exa:project rdf:resource="http://example.com/project3"/>
+                    <exa:skills rdf:parseType="Collection">
+                        </exa:skills>
+                    <exa:tag>developer</exa:tag>
+                    <exa:tag>fullstack</exa:tag>
+                    <exa:tag>senior</exa:tag>
+                    <exa:weight rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">65.5</exa:weight>
+                    <schema:address rdf:nodeID="b1"/>
+                    <schema:email>alice@example.com</schema:email>
+                    <foaf:age rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">30</foaf:age>
+                    <foaf:knows rdf:resource="http://example.com/person2"/>
+                    <foaf:knows rdf:resource="http://example.com/person3"/>
+                    <foaf:member rdf:resource="http://example.com/org1"/>
+                    <foaf:name>Alice</foaf:name>
+                    <foaf:name xml:lang="en">Alice</foaf:name>
+                    <foaf:name xml:lang="es">Alicia</foaf:name>
+                </foaf:Person>
+        </exa:members>
+        <dc:description>A company that makes widgets
+and other products.</dc:description>
+        <dc:description>This is a multiline
+description
+with multiple lines
+of text.</dc:description>
+        <dc:title xml:lang="en">Acme Corporation</dc:title>
+        <dc:title xml:lang="fr">Acme Corporation</dc:title>
+        <dc:title xml:lang="de">Acme Corporation</dc:title>
+        <foaf:name>Acme Corp</foaf:name>
+    </foaf:Organization>
+    <foaf:Organization rdf:about="http://example.com/org2">
+        <exa:foundedBy rdf:resource="http://example.com/person3"/>
+        <foaf:name>Tech Inc</foaf:name>
+    </foaf:Organization>
+    <foaf:Person rdf:about="http://example.com/person1">
+        <exa:bio>Alice is a software engineer
+who loves programming
+and open source.</exa:bio>
+        <exa:birthDate rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">1993-01-15T00:00:00Z</exa:birthDate>
+        <exa:complex rdf:parseType="Resource">
+            <exa:ComplexObject>
+                <exa:prop1>value1</exa:prop1>
+                <exa:prop2 rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">value2</exa:prop2>
+                <exa:prop3 rdf:nodeID="b1"/>
+                <exa:prop4 rdf:resource="http://example.com/person1"/>
+            </exa:ComplexObject>
+        </exa:complex>
+        <exa:edgeCase1 rdf:datatype="http://www.w3.org/2001/XMLSchema#double">0.123e2</exa:edgeCase1>
+        <exa:edgeCase2 rdf:datatype="http://www.w3.org/2001/XMLSchema#double">123e-2</exa:edgeCase2>
+        <exa:edgeCase3>text with &quot;quotes&quot; and
+newlines</exa:edgeCase3>
+        <exa:height rdf:datatype="http://www.w3.org/2001/XMLSchema#double">1.75</exa:height>
+        <exa:isActive rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">1</exa:isActive>
+        <exa:privateNote>This is a private note</exa:privateNote>
+        <exa:project rdf:resource="http://example.com/project1"/>
+        <exa:project rdf:resource="http://example.com/project2"/>
+        <exa:project rdf:resource="http://example.com/project3"/>
+        <exa:skills rdf:parseType="Collection">
+            </exa:skills>
+        <exa:tag>developer</exa:tag>
+        <exa:tag>fullstack</exa:tag>
+        <exa:tag>senior</exa:tag>
+        <exa:weight rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">65.5</exa:weight>
+        <schema:address rdf:nodeID="b1"/>
+        <schema:email>alice@example.com</schema:email>
+        <foaf:age rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">30</foaf:age>
+        <foaf:knows rdf:resource="http://example.com/person2"/>
+        <foaf:knows rdf:resource="http://example.com/person3"/>
+        <foaf:member rdf:resource="http://example.com/org1"/>
+        <foaf:name>Alice</foaf:name>
+        <foaf:name xml:lang="en">Alice</foaf:name>
+        <foaf:name xml:lang="es">Alicia</foaf:name>
+    </foaf:Person>
+    <foaf:Person rdf:about="http://example.com/person2">
+        <exa:birthDate rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">1998-05-20T12:30:00Z</exa:birthDate>
+        <exa:hobbies rdf:parseType="Collection">
+            </exa:hobbies>
+        <exa:isActive rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">0</exa:isActive>
+        <exa:privateNote>Another private note</exa:privateNote>
+        <schema:address rdf:nodeID="b2"/>
+        <foaf:age rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">25</foaf:age>
+        <foaf:knows rdf:resource="http://example.com/person3"/>
+        <foaf:member rdf:resource="http://example.com/org1"/>
+        <foaf:name xml:lang="en">Bob</foaf:name>
+        <foaf:name xml:lang="en">Robert</foaf:name>
+    </foaf:Person>
+    <foaf:Person rdf:about="http://example.com/person3">
+        <exa:nested rdf:parseType="Collection">
+            </exa:nested>
+        <foaf:age rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">35</foaf:age>
+        <foaf:member rdf:resource="http://example.com/org2"/>
+        <foaf:name>Charlie</foaf:name>
+    </foaf:Person>
+    <exa:ContactInfo rdf:nodeID="n6">
+        <exa:related rdf:nodeID="b4"/>
+        <schema:address rdf:nodeID="b4"/>
+        <schema:email>contact@example.com</schema:email>
+    </exa:ContactInfo>
+    <exa:Address rdf:nodeID="b1">
+        <exa:city>New York</exa:city>
+        <exa:country>USA</exa:country>
+        <exa:state>NY</exa:state>
+        <schema:address>123 Main St</schema:address>
+    </exa:Address>
+    <exa:Address rdf:nodeID="b2">
+        <exa:city>Los Angeles</exa:city>
+        <exa:state>CA</exa:state>
+        <schema:address>456 Oak Ave</schema:address>
+    </exa:Address>
+    <rdf:Description rdf:nodeID="b4">
+       <exa:related rdf:nodeID="n6"/><schema:address>789 Pine Rd</schema:address>
+    </rdf:Description>
+</rdf:RDF>
