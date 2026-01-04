@@ -31,20 +31,20 @@ export class TextTermConverter {
           throw new TypeError('Value of RDF literal node must be a string')
         }
 
-        if (literal.datatype && this.serializer.flags.indexOf('x') < 0) {
+        if (literal.datatype && !this.serializer.flags.includes('x')) {
           // Supress native numbers
           switch (literal.datatype.uri) {
             case 'http://www.w3.org/2001/XMLSchema#integer':
               return value
 
             case 'http://www.w3.org/2001/XMLSchema#decimal': // In Turtle, must have dot
-              if (value.indexOf('.') < 0) value += '.0'
+              if (!value.includes('.')) value += '.0'
               return value
 
             case 'http://www.w3.org/2001/XMLSchema#double': {
               // Must force use of 'e'
-              const eNotation = value.toLowerCase().indexOf('e') > 0
-              if (value.indexOf('.') < 0 && !eNotation) value += '.0'
+              const eNotation = value.toLowerCase().includes('e')
+              if (!value.includes('.') && !eNotation) value += '.0'
               if (!eNotation) value += 'e0'
               return value
             }
@@ -75,15 +75,15 @@ export class TextTermConverter {
     // c.f. symbolString() in notation3.py
     const uri = node.uri
     let separator = uri.indexOf('#')
-    if (separator < 0 && this.serializer.flags.indexOf('/') < 0) {
+    if (separator < 0 && !this.serializer.flags.includes('/')) {
       separator = uri.lastIndexOf('/')
     }
 
     if (
       separator < 0 ||
-      this.serializer.flags.indexOf('p') >= 0 ||
+      this.serializer.flags.includes('p') ||
       // Can split at namespace but only if http[s]: URI or file: or ws[s] (why not others?)
-      !(uri.indexOf('http') === 0 || uri.indexOf('ws') === 0 || uri.indexOf('file') === 0)
+      !(uri.startsWith('http') || uri.startsWith('ws') || uri.startsWith('file'))
     ) {
       return this.explicitURI(uri)
     }
@@ -99,7 +99,7 @@ export class TextTermConverter {
     let baseDir = this.serializer.base
     if (baseDir) {
       // let baseDirSeparator = baseDir.indexOf('#')
-      // if (baseDirSeparator < 0 && this.serializer.flags.indexOf('/') < 0) {
+      // if (baseDirSeparator < 0 && !this.serializer.flags.includes('/')) {
       //   baseDirSeparator = baseDir.lastIndexOf('/')
       // }
       // baseDir = baseDir.slice(0, baseDirSeparator + 1)
@@ -114,7 +114,7 @@ export class TextTermConverter {
     const namespaceIsBaseDir = baseDir && namespace === baseDir
 
     // If flag 'o' is present, forbid dots in local part when abbreviating
-    const forbidDotLocal = this.serializer.flags.indexOf('o') >= 0 && localname.indexOf('.') >= 0
+    const forbidDotLocal = this.serializer.flags.includes('o') && localname.includes('.')
 
     const cannotSplit =
       namespaceIsBaseDir || forbidDotLocal || namespace.length <= minNamespaceLength || !this.isValidPNLocal(localname)
@@ -125,10 +125,10 @@ export class TextTermConverter {
     if (
       this.serializer.defaultNamespace &&
       this.serializer.defaultNamespace === namespace &&
-      this.serializer.flags.indexOf('d') < 0
+      !this.serializer.flags.includes('d')
     ) {
       // d -> suppress default
-      if (this.serializer.flags.indexOf('k') >= 0 && TextTermConverter.keywords.indexOf(localname) < 0) {
+      if (this.serializer.flags.includes('k') && !TextTermConverter.keywords.includes(localname)) {
         return localname
       }
       return ':' + localname
@@ -146,13 +146,13 @@ export class TextTermConverter {
   //  stringToN3:  String escaping for N3
   stringToN3(string: string, flags?: string) {
     const flagsToUse = flags || this.serializer.flags || 'e'
-    const forceSingleLine = flagsToUse.indexOf('n') >= 0
-    const escapeUnicode = flagsToUse.indexOf('e') >= 0
+    const forceSingleLine = flagsToUse.includes('n')
+    const escapeUnicode = flagsToUse.includes('e')
 
     const multiline =
       string.length > 20 && // Long enough to make sense
       string.slice(-1) !== '"' && // corner case'
-      (string.indexOf('\n') > 0 || string.indexOf('"') > 0) &&
+      (string.includes('\n') || string.includes('"')) &&
       !forceSingleLine
 
     const delim = multiline ? '"""' : '"'
@@ -194,9 +194,9 @@ export class TextTermConverter {
   }
 
   explicitURI(uri: string) {
-    if (this.serializer.flags.indexOf('r') < 0 && this.serializer.base) {
+    if (!this.serializer.flags.includes('r') && this.serializer.base) {
       uri = Uri.refTo(this.serializer.base, uri)
-    } else if (this.serializer.flags.indexOf('u') >= 0) {
+    } else if (this.serializer.flags.includes('u')) {
       // Unicode encoding NTriples style
       uri = this.backslashUify(uri)
     } else {
@@ -223,7 +223,7 @@ export class TextTermConverter {
       if (char === '.') continue
 
       // Other characters must not be in the blacklist
-      if (TextTermConverter._notNameChars.indexOf(char) >= 0) {
+      if (TextTermConverter._notNameChars.includes(char)) {
         return false
       }
     }

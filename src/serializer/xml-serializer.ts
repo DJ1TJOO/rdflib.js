@@ -55,7 +55,7 @@ export class XMLSerializer extends AbstractSerializer {
         var branch = tree[i]
         if (typeof branch !== 'string') {
           var substr = XMLtreeToString(branch, level + 1)
-          if (substr.length < 10 * (width - indent * level) && substr.indexOf('"""') < 0) {
+          if (substr.length < 10 * (width - indent * level) && !substr.includes('"""')) {
             // Don't mess up multiline strings
             line = XMLtreeToLine(branch)
             if (line.length < width - indent * level) {
@@ -318,19 +318,19 @@ export class XMLSerializer extends AbstractSerializer {
       var uri = term.uri
 
       var j = uri.indexOf('#')
-      if (j < 0 && this.flags.indexOf('/') < 0) {
+      if (j < 0 && !this.flags.includes('/')) {
         j = uri.lastIndexOf('/')
       }
       if (j < 0) throw new Error('Cannot make qname out of <' + uri + '>')
 
       for (var k = j + 1; k < uri.length; k++) {
-        if (TextTermConverter._notNameChars.indexOf(uri[k]) >= 0) {
+        if (TextTermConverter._notNameChars.includes(uri[k])) {
           throw new Error('Invalid character "' + uri[k] + '" cannot be in XML qname for URI: ' + uri)
         }
       }
       var localid = uri.slice(j + 1)
       var namesp = uri.slice(0, j + 1)
-      if (this.defaultNamespace && this.defaultNamespace === namesp && this.flags.indexOf('d') < 0) {
+      if (this.defaultNamespace && this.defaultNamespace === namesp && !this.flags.includes('d')) {
         // d -> suppress default
         return localid
       }

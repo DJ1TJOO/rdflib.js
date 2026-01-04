@@ -19,7 +19,7 @@ export class NTriplesSerializer extends AbstractSerializer {
   }
 
   serialize(statements: Statement[]): string {
-    const includeQuads = this.flags.indexOf('q') >= 0
+    const includeQuads = this.flags.includes('q')
     const sortedStatments = [...statements].sort()
 
     this.result = ''
