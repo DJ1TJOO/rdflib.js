@@ -1,0 +1,13 @@
+<rdf:RDF
+ xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+ xmlns:exa="http://example.com/">
+    <rdf:Description rdf:about="http://example.com/subject1">
+       <exa:predicate rdf:nodeID="b1"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="http://example.com/subject2">
+       <exa:predicate rdf:nodeID="b1"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="b1">
+       <exa:predicate2 rdf:parseType="Resource"></exa:predicate2>
+    </rdf:Description>
+</rdf:RDF>

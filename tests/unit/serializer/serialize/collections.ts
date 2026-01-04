@@ -1,4 +1,4 @@
-import { BlankNode, Collection, graph, lit, st, sym } from '../../../../src'
+import { blankNode, BlankNode, Collection, graph, lit, st, sym } from '../../../../src'
 
 import { serializeEqualMultiple } from './utils/serialize-equal'
 
@@ -51,5 +51,23 @@ describe('collections', () => {
     store.add(statement)
 
     serializeEqualMultiple(store, 'collections/nested', ['n3', 'nt', 'rdf'])
+  })
+
+  describe('should serialize a collection with bnodes', () => {
+    const bnode1 = blankNode('b1')
+    const bnode2 = blankNode('b2')
+    const collection = new Collection([bnode1, bnode2])
+    const statement = st(sym('http://example.com/subject'), sym('http://example.com/predicate'), collection)
+    const statement2 = st(sym('http://example.com/subject2'), sym('http://example.com/predicate2'), bnode2)
+    const statement3 = st(bnode1, sym('http://example.com/predicate3'), sym('http://example.com/object'))
+    const statement4 = st(bnode2, sym('http://example.com/predicate4'), sym('http://example.com/object2'))
+
+    const store = graph()
+    store.add(statement)
+    store.add(statement2)
+    store.add(statement3)
+    store.add(statement4)
+
+    serializeEqualMultiple(store, 'collections/bnodes', ['n3', 'nt', 'rdf'])
   })
 })

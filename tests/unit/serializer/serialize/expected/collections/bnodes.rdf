@@ -1,0 +1,20 @@
+<rdf:RDF
+ xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+ xmlns:exa="http://example.com/">
+    <rdf:Description rdf:about="http://example.com/subject">
+        <exa:predicate rdf:parseType="Collection">
+                <rdf:Description>
+                   <exa:predicate3 rdf:resource="http://example.com/object"/>
+                </rdf:Description>
+                <rdf:Description rdf:nodeID="b2">
+                   <exa:predicate4 rdf:resource="http://example.com/object2"/>
+                </rdf:Description>
+        </exa:predicate>
+    </rdf:Description>
+    <rdf:Description rdf:about="http://example.com/subject2">
+       <exa:predicate2 rdf:nodeID="b2"/>
+    </rdf:Description>
+    <rdf:Description rdf:nodeID="b2">
+       <exa:predicate4 rdf:resource="http://example.com/object2"/>
+    </rdf:Description>
+</rdf:RDF>

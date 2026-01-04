@@ -1,0 +1,8 @@
+exa:subject2 exa:predicate2 _:b2 .
+_:n0 rdf:first _:b2.
+_:n0 rdf:rest rdf:nill.
+_:n1 rdf:first _:b1.
+_:n1 rdf:rest _:n0.
+exa:subject exa:predicate _:n1 .
+_:b1 exa:predicate3 exa:object .
+_:b2 exa:predicate4 exa:object2 .
