@@ -9,8 +9,8 @@ export class TextTermConverter {
   public static readonly _notQNameChars = '\t\r\n !"#$%&\'()*,+/;<=>?@[\\]^`{|}~' // issue#228
   public static readonly _notNameChars = TextTermConverter._notQNameChars + ':'
 
-  public static readonly forbidden1 = new RegExp(/[\\"\b\f\r\v\t\n\u0080-\uffff]/gm)
-  public static readonly forbidden3 = new RegExp(/[\\"\b\f\r\v\u0080-\uffff]/gm)
+  public static readonly forbiddenSingleLine = new RegExp(/[\\"\b\f\r\v\t\n\u0080-\uffff]/gm)
+  public static readonly forbiddenMultiline = new RegExp(/[\\"\b\f\r\v\u0080-\uffff]/gm)
 
   private readonly serializer: AbstractSerializer
 
@@ -19,166 +19,178 @@ export class TextTermConverter {
   }
 
   //  Deal with term level things and nesting with no bnode structure
-  atomicTermToN3(expr: Node | DefaultGraph) {
-    switch (expr.termType) {
+  atomicTermToN3(node: Node | DefaultGraph) {
+    switch (node.termType) {
       case 'BlankNode':
       case 'Variable':
-        return expr.toNT()
+        return node.toNT()
       case 'Literal':
-        var lit = expr as Literal
-        var val = lit.value
-        if (typeof val !== 'string') {
+        const literal = node as Literal
+        let value = literal.value
+        if (typeof value !== 'string') {
           throw new TypeError('Value of RDF literal node must be a string')
         }
-        // var val = expr.value.toString() // should be a string already
-        if (lit.datatype && this.serializer.flags.indexOf('x') < 0) {
+
+        if (literal.datatype && this.serializer.flags.indexOf('x') < 0) {
           // Supress native numbers
-          switch (lit.datatype.uri) {
+          switch (literal.datatype.uri) {
             case 'http://www.w3.org/2001/XMLSchema#integer':
-              return val
+              return value
 
             case 'http://www.w3.org/2001/XMLSchema#decimal': // In Turtle, must have dot
-              if (val.indexOf('.') < 0) val += '.0'
-              return val
+              if (value.indexOf('.') < 0) value += '.0'
+              return value
 
             case 'http://www.w3.org/2001/XMLSchema#double': {
               // Must force use of 'e'
-              const eNotation = val.toLowerCase().indexOf('e') > 0
-              if (val.indexOf('.') < 0 && !eNotation) val += '.0'
-              if (!eNotation) val += 'e0'
-              return val
+              const eNotation = value.toLowerCase().indexOf('e') > 0
+              if (value.indexOf('.') < 0 && !eNotation) value += '.0'
+              if (!eNotation) value += 'e0'
+              return value
             }
 
             case 'http://www.w3.org/2001/XMLSchema#boolean':
-              return lit.value === '1' ? 'true' : 'false'
+              return literal.value === '1' ? 'true' : 'false'
           }
         }
-        var str = this.stringToN3(lit.value)
-        if (lit.language) {
-          str += '@' + lit.language
-        } else if (!lit.datatype.equals(this.serializer.xsd.string)) {
-          str += '^^' + this.atomicTermToN3(lit.datatype)
+
+        let expression = this.stringToN3(literal.value)
+        if (literal.language) {
+          expression += '@' + literal.language
+        } else if (!literal.datatype.equals(this.serializer.xsd.string)) {
+          expression += '^^' + this.atomicTermToN3(literal.datatype)
         }
-        return str
+        return expression
       case 'NamedNode':
-        return this.symbolToN3(expr as NamedNode)
+        return this.symbolToN3(node as NamedNode)
       case 'DefaultGraph':
         return ''
       default:
-        throw new Error('Internal: atomicTermToN3 cannot handle ' + expr + ' of termType: ' + expr.termType)
+        throw new Error('Internal: atomicTermToN3 cannot handle ' + node + ' of termType: ' + node.termType)
     }
   }
 
   //  A single symbol, either in  <> or namespace notation
-  symbolToN3(x: NamedNode) {
+  symbolToN3(node: NamedNode) {
     // c.f. symbolString() in notation3.py
-    var uri = x.uri
-    var j = uri.indexOf('#')
-    if (j < 0 && this.serializer.flags.indexOf('/') < 0) {
-      j = uri.lastIndexOf('/')
+    const uri = node.uri
+    let separator = uri.indexOf('#')
+    if (separator < 0 && this.serializer.flags.indexOf('/') < 0) {
+      separator = uri.lastIndexOf('/')
     }
+
     if (
-      j >= 0 &&
-      this.serializer.flags.indexOf('p') < 0 &&
+      separator < 0 ||
+      this.serializer.flags.indexOf('p') >= 0 ||
       // Can split at namespace but only if http[s]: URI or file: or ws[s] (why not others?)
-      (uri.indexOf('http') === 0 || uri.indexOf('ws') === 0 || uri.indexOf('file') === 0)
+      !(uri.indexOf('http') === 0 || uri.indexOf('ws') === 0 || uri.indexOf('file') === 0)
     ) {
-      var localid = uri.slice(j + 1)
-      var namesp = uri.slice(0, j + 1)
-      // Don't split if namespace is just the protocol (e.g., https://)
-      // A valid namespace should have content after the protocol
-      var minNamespaceLength = uri.indexOf('://') + 4 // e.g., "http://x" minimum
-      // Also don't split if namespace is the base directory (would serialize as relative URI)
-      var baseDir = this.serializer.base
-        ? this.serializer.base.slice(
-            0,
-            Math.max(this.serializer.base.lastIndexOf('/'), this.serializer.base.lastIndexOf('#')) + 1
-          )
-        : null
-      var namespaceIsBaseDir = baseDir && namesp === baseDir
-      // If flag 'o' is present, forbid dots in local part when abbreviating
-      var forbidDotLocal = this.serializer.flags.indexOf('o') >= 0 && localid.indexOf('.') >= 0
-      var canSplit =
-        !namespaceIsBaseDir && !forbidDotLocal && namesp.length > minNamespaceLength && this.isValidPNLocal(localid)
-      /*
-      if (uri.slice(0, j + 1) === this.base + '#') { // base-relative
-        if (canSplit) {
-          return ':' + uri.slice(j + 1) // assume deafult ns is local
-        } else {
-          return '<#' + uri.slice(j + 1) + '>'
-        }
-      }
-      */
-      if (canSplit) {
-        if (
-          this.serializer.defaultNamespace &&
-          this.serializer.defaultNamespace === namesp &&
-          this.serializer.flags.indexOf('d') < 0
-        ) {
-          // d -> suppress default
-          if (this.serializer.flags.indexOf('k') >= 0 && TextTermConverter.keywords.indexOf(localid) < 0) {
-            return localid
-          }
-          return ':' + localid
-        }
-        // this.checkIntegrity() //  @@@ Remove when not testing
-        var prefix = this.serializer.prefixes[namesp]
-        if (!prefix) prefix = this.serializer.makeUpPrefix(namesp)
-        if (prefix) {
-          this.serializer.namespacesUsed[namesp] = true
-          return prefix + ':' + localid
-        }
-        // Fall though if can't do qname
-      }
+      return this.explicitURI(uri)
     }
-    return this.explicitURI(uri)
+
+    const namespace = uri.slice(0, separator + 1)
+    const localname = uri.slice(separator + 1)
+
+    // Don't split if namespace is just the protocol (e.g., https://)
+    // A valid namespace should have content after the protocol
+    const minNamespaceLength = uri.indexOf('://') + 4 // e.g., "http://x" minimum
+
+    // Also don't split if namespace is the base directory (would serialize as relative URI)
+    let baseDir = this.serializer.base
+    if (baseDir) {
+      // let baseDirSeparator = baseDir.indexOf('#')
+      // if (baseDirSeparator < 0 && this.serializer.flags.indexOf('/') < 0) {
+      //   baseDirSeparator = baseDir.lastIndexOf('/')
+      // }
+      // baseDir = baseDir.slice(0, baseDirSeparator + 1)
+
+      // @TODO(serializer-refactor): Should this not work as above? Same as L76-79
+      const lastIndexOfHash = baseDir.lastIndexOf('#')
+      const lastIndexOfSlash = baseDir.lastIndexOf('/')
+      const maxIndex = Math.max(lastIndexOfSlash, lastIndexOfHash)
+      baseDir = baseDir.slice(0, maxIndex + 1)
+    }
+
+    const namespaceIsBaseDir = baseDir && namespace === baseDir
+
+    // If flag 'o' is present, forbid dots in local part when abbreviating
+    const forbidDotLocal = this.serializer.flags.indexOf('o') >= 0 && localname.indexOf('.') >= 0
+
+    const cannotSplit =
+      namespaceIsBaseDir || forbidDotLocal || namespace.length <= minNamespaceLength || !this.isValidPNLocal(localname)
+    if (cannotSplit) {
+      return this.explicitURI(uri)
+    }
+
+    if (
+      this.serializer.defaultNamespace &&
+      this.serializer.defaultNamespace === namespace &&
+      this.serializer.flags.indexOf('d') < 0
+    ) {
+      // d -> suppress default
+      if (this.serializer.flags.indexOf('k') >= 0 && TextTermConverter.keywords.indexOf(localname) < 0) {
+        return localname
+      }
+      return ':' + localname
+    }
+
+    // this.checkIntegrity() //  @@@ Remove when not testing
+
+    let prefix = this.serializer.prefixes[namespace]
+    if (!prefix) prefix = this.serializer.makeUpPrefix(namespace)
+
+    this.serializer.namespacesUsed[namespace] = true
+    return prefix + ':' + localname
   }
 
   //  stringToN3:  String escaping for N3
-  stringToN3(str: string, flags?: string) {
+  stringToN3(string: string, flags?: string) {
     const flagsToUse = flags || this.serializer.flags || 'e'
-    var res = ''
-    var i: number, j: number, k: number
-    var delim: string
-    var forbidden: RegExp
-    if (
-      str.length > 20 && // Long enough to make sense
-      str.slice(-1) !== '"' && // corner case'
-      flagsToUse.indexOf('n') < 0 && // Force single line
-      (str.indexOf('\n') > 0 || str.indexOf('"') > 0)
-    ) {
-      delim = '"""'
-      forbidden = TextTermConverter.forbidden3
-    } else {
-      delim = '"'
-      forbidden = TextTermConverter.forbidden1
-    }
-    for (i = 0; i < str.length; ) {
+    const forceSingleLine = flagsToUse.indexOf('n') >= 0
+    const escapeUnicode = flagsToUse.indexOf('e') >= 0
+
+    const multiline =
+      string.length > 20 && // Long enough to make sense
+      string.slice(-1) !== '"' && // corner case'
+      (string.indexOf('\n') > 0 || string.indexOf('"') > 0) &&
+      !forceSingleLine
+
+    const delim = multiline ? '"""' : '"'
+    const forbidden = multiline ? TextTermConverter.forbiddenMultiline : TextTermConverter.forbiddenSingleLine
+
+    let result = ''
+    let i: number
+    for (i = 0; i < string.length; ) {
       forbidden.lastIndex = 0
-      var m = forbidden.exec(str.slice(i))
-      if (m == null) break
-      j = i + forbidden.lastIndex - 1
-      res += str.slice(i, j)
-      var ch = str[j]
-      if (ch === '"' && delim === '"""' && str.slice(j, j + 3) !== '"""') {
-        res += ch
-      } else {
-        k = '\b\f\r\t\v\n\\"'.indexOf(ch) // No escaping of bell (7)?
-        if (k >= 0) {
-          res += '\\' + 'bfrtvn\\"'[k]
-        } else {
-          if (flagsToUse.indexOf('e') >= 0) {
-            // Unicode escaping in strings not unix style
-            res += '\\u' + ('000' + ch.charCodeAt(0).toString(16).toLowerCase()).slice(-4)
-          } else {
-            // no 'e' flag
-            res += ch
-          }
-        }
+      if (forbidden.exec(string.slice(i)) == null) break
+
+      // Index of forbidden character
+      const j = i + forbidden.lastIndex - 1
+
+      // Add allowed characters that are between forbidden characters to result
+      result += string.slice(i, j)
+      i += forbidden.lastIndex
+
+      const char = string[j]
+
+      // Single quotes allowed in multiline strings but not three in a row
+      if (char === '"' && multiline && string.slice(j, j + 3) !== delim) {
+        result += char
+        continue
       }
-      i = j + 1
+
+      const k = '\b\f\r\t\v\n\\"'.indexOf(char) // No escaping of bell (7)?
+      if (k >= 0) {
+        result += '\\' + 'bfrtvn\\"'[k]
+      } else if (escapeUnicode) {
+        // Unicode escaping in strings not unix style
+        result += '\\u' + ('000' + char.charCodeAt(0).toString(16).toLowerCase()).slice(-4)
+      } else {
+        result += char
+      }
     }
-    return delim + res + str.slice(i) + delim
+
+    return delim + result + string.slice(i) + delim
   }
 
   explicitURI(uri: string) {
@@ -188,7 +200,7 @@ export class TextTermConverter {
       // Unicode encoding NTriples style
       uri = this.backslashUify(uri)
     } else {
-      uri = this.hexify(decodeURI(uri))
+      uri = encodeURI(decodeURI(uri))
     }
     return '<' + uri + '>'
   }
@@ -204,12 +216,14 @@ export class TextTermConverter {
     if (local[local.length - 1] === '.') return false
 
     // Check each character (allow dots mid-string)
-    for (var i = 0; i < local.length; i++) {
-      var ch = local[i]
+    for (let i = 0; i < local.length; i++) {
+      const char = local[i]
+
       // Dot is allowed unless it's the last character (checked above)
-      if (ch === '.') continue
+      if (char === '.') continue
+
       // Other characters must not be in the blacklist
-      if (TextTermConverter._notNameChars.indexOf(ch) >= 0) {
+      if (TextTermConverter._notNameChars.indexOf(char) >= 0) {
         return false
       }
     }
@@ -218,24 +232,18 @@ export class TextTermConverter {
 
   // String escaping utilities
 
-  private hexify(str: string) {
-    // also used in parser
-    return encodeURI(str)
-  }
-
-  private backslashUify(str: string) {
-    var res = ''
-    var k: number
-    for (var i = 0; i < str.length; i++) {
-      k = str.charCodeAt(i)
-      if (k > 65535) {
-        res += '\\U' + ('00000000' + k.toString(16)).slice(-8) // convert to upper?
-      } else if (k > 126) {
-        res += '\\u' + ('0000' + k.toString(16)).slice(-4)
+  private backslashUify(string: string) {
+    let result = ''
+    for (let i = 0; i < string.length; i++) {
+      const code = string.charCodeAt(i)
+      if (code > 65535) {
+        result += '\\U' + ('00000000' + code.toString(16)).slice(-8) // convert to upper?
+      } else if (code > 126) {
+        result += '\\u' + ('0000' + code.toString(16)).slice(-4)
       } else {
-        res += str[i]
+        result += string[i]
       }
     }
-    return res
+    return result
   }
 }

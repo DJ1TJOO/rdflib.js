@@ -39,8 +39,8 @@ export class LegacyCompatibleSerializer extends AbstractSerializer implements Le
   keywords = TextTermConverter.keywords
   _notQNameChars = TextTermConverter._notQNameChars
   _notNameChars = TextTermConverter._notNameChars
-  forbidden1 = TextTermConverter.forbidden1
-  forbidden3 = TextTermConverter.forbidden3
+  forbidden1 = TextTermConverter.forbiddenSingleLine
+  forbidden3 = TextTermConverter.forbiddenMultiline
 
   incoming: LegacySerializerInterface['incoming'] | null
 
