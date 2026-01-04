@@ -1,5 +1,5 @@
 import { expect } from 'chai'
-import { graph } from '../../../../src'
+import { AbstractSerializer, graph } from '../../../../src'
 import { createEmptySerializer } from '../utils/serializer-factories'
 
 describe('constructor', () => {
@@ -11,7 +11,6 @@ describe('constructor', () => {
     expect(serializer.base).to.be.null
     expect(serializer.defaultNamespace).to.be.null
     expect(serializer.namespacesUsed).to.deep.equal({})
-    expect(serializer.incoming).to.be.null
     expect(serializer.formulas).to.deep.equal({})
     expect(serializer.store).to.equal(store)
   })
@@ -26,21 +25,12 @@ describe('constructor', () => {
     expect(serializer.namespaces['xml']).to.equal('reserved:reservedForFutureUse')
   })
 
-  it('should have keywords reserved', () => {
-    const serializer = createEmptySerializer(graph())
-
-    expect(serializer.keywords).to.include('a')
-    expect(serializer.keywords).to.be.an('array')
-  })
-
   it('should have prefixchars containing all a-zA-Z', () => {
-    const serializer = createEmptySerializer(graph())
-
     const expectedChars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
-    expect(serializer.prefixchars).to.equal(expectedChars)
+    expect(AbstractSerializer.prefixchars).to.equal(expectedChars)
 
     for (let i = 0; i < expectedChars.length; i++) {
-      expect(serializer.prefixchars.indexOf(expectedChars[i])).to.be.at.least(0)
+      expect(AbstractSerializer.prefixchars.indexOf(expectedChars[i])).to.be.at.least(0)
     }
   })
 })

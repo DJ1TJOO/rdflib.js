@@ -5,6 +5,7 @@ import * as Uri from '../../uri'
 import { AbstractSerializer } from '../abstract-serializer'
 
 export class TextTermConverter {
+  public static readonly keywords = ['a'] // The only one we generate at the moment
   public static readonly _notQNameChars = '\t\r\n !"#$%&\'()*,+/;<=>?@[\\]^`{|}~' // issue#228
   public static readonly _notNameChars = TextTermConverter._notQNameChars + ':'
 
@@ -115,7 +116,7 @@ export class TextTermConverter {
           this.serializer.flags.indexOf('d') < 0
         ) {
           // d -> suppress default
-          if (this.serializer.flags.indexOf('k') >= 0 && this.serializer.keywords.indexOf(localid) < 0) {
+          if (this.serializer.flags.indexOf('k') >= 0 && TextTermConverter.keywords.indexOf(localid) < 0) {
             return localid
           }
           return ':' + localid

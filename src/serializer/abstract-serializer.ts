@@ -4,60 +4,53 @@ import { DataFactory } from '../factories/factory-types'
 import Formula from '../formula'
 import Node from '../node'
 import Statement from '../statement'
-import { SubjectType } from '../types'
 import { createXSD } from '../xsd'
 
 // Types for the Serializer
 export interface SerializerPrefixes extends Record<string, string> {}
 export interface SerializerNamespaces extends Record<string, string> {}
 export interface SerializerNamespacesUsed extends Record<string, boolean> {}
-export interface SerializerIncoming extends Record<string, SubjectType[]> {}
 export interface SerializerFormulas extends Record<string, Formula> {}
 
 export abstract class AbstractSerializer {
+  // @TODO(serializer-refactor): prefixchars and validPrefix are way too restrictive, for the n3 and xml qname specs
+  public static readonly prefixchars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
   public static readonly validPrefix = new RegExp(/^[a-zA-Z][a-zA-Z0-9]*$/)
 
+  store: Formula
   flags: string
   base: string | null
+  defaultNamespace: string | null
   prefixes: SerializerPrefixes
   namespaces: SerializerNamespaces
-  defaultNamespace: string | null
   namespacesUsed: SerializerNamespacesUsed
-  keywords: string[]
-  prefixchars: string
-  incoming: SerializerIncoming | null
   formulas: SerializerFormulas
-  store: Formula
   rdfFactory: DataFactory
   xsd: ReturnType<typeof createXSD>
 
   constructor(store: Formula) {
-    this.flags = ''
-    this.base = null
+    this.store = store
 
+    this.flags = ''
+
+    this.base = null
     this.defaultNamespace = null
+
     this.prefixes = {} // suggested prefixes
     this.namespaces = {} // complementary
-    const nsKeys = Object.keys(solidNs())
-    for (const i in nsKeys) {
-      const uri = solidNs()[nsKeys[i]]('')
-      const prefix = nsKeys[i]
+    this.namespacesUsed = {} // Count actually used and so needed in @prefixes
 
-      // @TODO(serializer-refactor): How should we handle when multiple prefixes map to the same namespace? This will break the integrity of prefixes and namespaces
-      // alternative: this.suggestPrefix(prefix, uri), since the serializer use the prefixes object any way, this will only change the priortity order of the solidNs from last to first
-      this.prefixes[uri] = prefix
-      this.namespaces[prefix] = uri
+    const ns = solidNs()
+    for (const prefix in ns) {
+      const uri = ns[prefix]('')
+      this.suggestPrefix(prefix, uri)
     }
 
     this.suggestPrefix('rdf', 'http://www.w3.org/1999/02/22-rdf-syntax-ns#') // XML code assumes this!
     this.suggestPrefix('xml', 'reserved:reservedForFutureUse') // XML reserves xml: in the spec.
 
-    this.namespacesUsed = {} // Count actually used and so needed in @prefixes
-    this.keywords = ['a'] // The only one we generate at the moment
-    this.prefixchars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
-    this.incoming = null // Array not calculated yet
     this.formulas = {} // remembering original formulae from hashes
-    this.store = store
+
     this.rdfFactory = store.rdfFactory || CanonicalDataFactory
     this.xsd = createXSD(this.rdfFactory)
   }
@@ -80,27 +73,6 @@ export abstract class AbstractSerializer {
     return this
   }
 
-  toStr(x: Node) {
-    var s = x.toNT()
-    if (x.termType === 'Graph') {
-      this.formulas[s] = x as Formula // remember as reverse does not work
-    }
-    return s
-  }
-
-  fromStr(s: string) {
-    if (s[0] === '{') {
-      var x = this.formulas[s] as Formula | undefined // @TODO(serializer-refactor): Should we enable "noUncheckedIndexedAccess": true
-      if (!x) {
-        console.log('No formula object for ' + s)
-        // @TODO(serializer-refactor): This is to prevent undefined errors, is this okay to throw an error?
-        throw new Error('No formula object for ' + s)
-      }
-      return x
-    }
-    return this.store.fromNT(s) as Node // @TODO(serializer-refactor): Store fromNT should be typed
-  }
-
   /**
    * Defines a set of [prefix, namespace] pairs to be used by this Serializer instance.
    * Overrides previous prefixes if any
@@ -108,7 +80,7 @@ export abstract class AbstractSerializer {
    * @return {Serializer}
    */
   setNamespaces(namespaces: Record<string, string>) {
-    for (var px in namespaces) {
+    for (const px in namespaces) {
       this.setPrefix(px, namespaces[px])
     }
     return this
@@ -120,16 +92,13 @@ export abstract class AbstractSerializer {
    * @param uri
    */
   setPrefix(prefix: string, uri: string) {
-    if (prefix.slice(0, 7) === 'default') return // Try to weed these out
-    if (prefix.slice(0, 2) === 'ns') return //  From others inferior algos
-    if (!prefix || !uri) return // empty strings not suitable
+    if (!uri) return this // empty strings not suitable
+    if (!this.isValidPrefix(prefix)) return this // not suitable
 
-    // @TODO(serializer-refactor): Should setPrefix also delete the existing namespace, yes to keep the integrity?
     // remove any existing prefix targeting this uri
-    // for (let existingPrefix in this.namespaces) {
-    //   if (this.namespaces[existingPrefix] == uri)
-    //     delete this.namespaces[existingPrefix];
-    // }
+    for (let existingPrefix in this.namespaces) {
+      if (this.namespaces[existingPrefix] == uri) delete this.namespaces[existingPrefix]
+    }
 
     // remove any existing mapping for this prefix
     for (let existingNs in this.prefixes) {
@@ -138,6 +107,8 @@ export abstract class AbstractSerializer {
 
     this.prefixes[uri] = prefix
     this.namespaces[prefix] = uri
+
+    return this
   }
 
   /* Accumulate Namespaces
@@ -146,87 +117,122 @@ export abstract class AbstractSerializer {
    ** There is therefore no guarantee in general.
    */
   suggestPrefix(prefix: string, uri: string) {
-    if (prefix.slice(0, 7) === 'default') return // Try to weed these out
-    if (prefix.slice(0, 2) === 'ns') return //  From others inferior algos
-    if (!prefix || !uri) return // empty strings not suitable
-    if (prefix in this.namespaces || uri in this.prefixes) return // already used
+    if (!uri) return this // empty strings not suitable
+    if (!this.isValidPrefix(prefix)) return this // not suitable
+
+    if (prefix in this.namespaces || uri in this.prefixes) return this // already used
+
     this.prefixes[uri] = prefix
     this.namespaces[prefix] = uri
+
+    return this
   }
 
   // Takes a namespace -> prefix map
   suggestNamespaces(namespaces: SerializerNamespaces) {
-    for (var px in namespaces) {
+    for (const px in namespaces) {
       this.suggestPrefix(px, namespaces[px])
     }
+
     return this
   }
 
   // Make up an unused prefix for a random namespace
   makeUpPrefix(uri: string) {
-    var p = uri
-    function canUseMethod(this: AbstractSerializer, pp: string) {
-      if (!AbstractSerializer.validPrefix.test(pp)) return false // bad format
-      if (pp === 'ns') return false // boring
-      if (pp in this.namespaces) return false // already used
-      this.prefixes[uri] = pp
-      this.namespaces[pp] = uri
-      return pp
-    }
-    var canUse = canUseMethod.bind(this)
+    if (uri in this.prefixes) return this.prefixes[uri]
 
-    if ('#/'.indexOf(p[p.length - 1]) >= 0) p = p.slice(0, -1)
-    var slash = p.lastIndexOf('/')
-    if (slash >= 0) p = p.slice(slash + 1)
-    var i = 0
-    while (i < p.length) {
-      if (this.prefixchars.indexOf(p[i]) >= 0) {
-        i++
-      } else {
-        break
-      }
-    }
-    p = p.slice(0, i)
+    let prefix = uri
+    if (prefix.endsWith('#') || prefix.endsWith('/')) prefix = prefix.slice(0, -1)
 
-    if (p.length < 6 && canUse(p)) return p // exact is best
-    if (canUse(p.slice(0, 3))) return p.slice(0, 3)
-    if (canUse(p.slice(0, 2))) return p.slice(0, 2)
-    if (canUse(p.slice(0, 4))) return p.slice(0, 4)
-    if (canUse(p.slice(0, 1))) return p.slice(0, 1)
-    if (canUse(p.slice(0, 5))) return p.slice(0, 5)
-    if (!AbstractSerializer.validPrefix.test(p)) {
-      p = 'n' // Otherwise the loop below may never termimnate
+    const slash = prefix.lastIndexOf('/')
+    if (slash >= 0) prefix = prefix.slice(slash + 1)
+
+    let i = 0
+    while (i < prefix.length && AbstractSerializer.prefixchars.includes(prefix[i])) i++
+    prefix = prefix.slice(0, i)
+
+    if (prefix.length < 6 && this.tryUseMadeUpPrefix(prefix, uri)) return prefix // exact is best
+    if (this.tryUseMadeUpPrefix(prefix.slice(0, 3), uri)) return prefix.slice(0, 3)
+    if (this.tryUseMadeUpPrefix(prefix.slice(0, 2), uri)) return prefix.slice(0, 2)
+    if (this.tryUseMadeUpPrefix(prefix.slice(0, 4), uri)) return prefix.slice(0, 4)
+    if (this.tryUseMadeUpPrefix(prefix.slice(0, 1), uri)) return prefix.slice(0, 1)
+    if (this.tryUseMadeUpPrefix(prefix.slice(0, 5), uri)) return prefix.slice(0, 5)
+
+    if (!AbstractSerializer.validPrefix.test(prefix) || !this.isValidPrefix(prefix.slice(0, 3))) {
+      prefix = 'n' // Otherwise the loop below may never termimnate
     }
-    for (var j = 0; ; j++) if (canUse(p.slice(0, 3) + j)) return p.slice(0, 3) + j
+    for (let j = 0; ; j++) if (this.tryUseMadeUpPrefix(prefix.slice(0, 3) + j, uri)) return prefix.slice(0, 3) + j
+  }
+
+  private tryUseMadeUpPrefix(prefix: string, uri: string) {
+    if (!AbstractSerializer.validPrefix.test(prefix)) return false // bad format
+
+    if (!this.isValidPrefix(prefix)) return false // not suitable
+    if (prefix in this.namespaces || uri in this.prefixes) return false // already used
+
+    this.prefixes[uri] = prefix
+    this.namespaces[prefix] = uri
+
+    return true
+  }
+
+  private isValidPrefix(prefix: string) {
+    if (prefix.slice(0, 7) === 'default') return false // Try to weed these out
+    if (prefix.slice(0, 2) === 'ns') return false //  From others inferior algos
+    if (!prefix) return false // empty strings not suitable
+
+    return true
   }
 
   checkIntegrity() {
-    var p, ns
-    for (p in this.namespaces) {
-      if (this.prefixes[this.namespaces[p]] !== p) {
+    for (const prefix in this.namespaces) {
+      if (this.prefixes[this.namespaces[prefix]] !== prefix) {
         throw new Error(
           'Serializer integity error 1: ' +
-            p +
+            prefix +
             ', ' +
-            this.namespaces[p] +
+            this.namespaces[prefix] +
             ', ' +
-            this.prefixes[this.namespaces[p]] +
+            this.prefixes[this.namespaces[prefix]] +
             '!'
         )
       }
     }
-    for (ns in this.prefixes) {
-      if (this.namespaces[this.prefixes[ns]] !== ns) {
+
+    for (const namespace in this.prefixes) {
+      if (this.namespaces[this.prefixes[namespace]] !== namespace) {
         throw new Error(
           'Serializer integity error 2: ' +
-            ns +
+            namespace +
             ', ' +
-            this.prefixes[ns] +
+            this.prefixes[namespace] +
             ', ' +
-            this.namespaces[this.prefixes[ns]] +
+            this.namespaces[this.prefixes[namespace]] +
             '!'
         )
       }
     }
+  }
+
+  toStr(x: Node) {
+    const s = x.toNT()
+    if (x.termType === 'Graph') {
+      this.formulas[s] = x as Formula // remember as reverse does not work
+    }
+
+    return s
+  }
+
+  fromStr(s: string) {
+    if (s[0] === '{') {
+      const x = this.formulas[s] as Formula | undefined // @TODO(serializer-refactor): Should we enable "noUncheckedIndexedAccess": true, this is a big change and should be done in a separate PR
+      if (!x) {
+        throw new Error('No formula object for ' + s)
+      }
+
+      return x
+    }
+
+    return this.store.fromNT(s) as Node // @TODO(serializer-refactor): Store fromNT should be typed, this should be done in a separate PR
   }
 }

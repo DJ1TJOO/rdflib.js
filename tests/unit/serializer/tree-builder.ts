@@ -139,18 +139,6 @@ describe('TreeBuilder', () => {
       expect(result.rootsHash[subject2.toNT()]).to.be.true
     })
 
-    it('should set incoming on serializer', () => {
-      const subject = sym('http://example.org/s')
-      const object = blankNode('b1')
-      const statement = st(subject, sym('http://example.org/p'), object)
-
-      treeBuilder.rootSubjects([statement])
-
-      expect(serializer.incoming).to.not.be.null
-      const objectKey = serializer.toStr(object)
-      expect(serializer.incoming![objectKey]).to.have.length(1)
-    })
-
     it('should handle statements with same subject and object', () => {
       const subject = sym('http://example.org/s')
       const statement = st(subject, sym('http://example.org/p'), subject) // Self-reference

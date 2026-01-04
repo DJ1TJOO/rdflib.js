@@ -33,17 +33,24 @@ export default function createSerializer(store: Formula) {
  * @see {@link JSONLDSerializer}
  */
 export class LegacyCompatibleSerializer extends AbstractSerializer implements LegacySerializerInterface {
+  prefixchars = AbstractSerializer.prefixchars
+  validPrefix = AbstractSerializer.validPrefix
+
+  keywords = TextTermConverter.keywords
   _notQNameChars = TextTermConverter._notQNameChars
   _notNameChars = TextTermConverter._notNameChars
-  validPrefix = AbstractSerializer.validPrefix
   forbidden1 = TextTermConverter.forbidden1
   forbidden3 = TextTermConverter.forbidden3
+
+  incoming: LegacySerializerInterface['incoming'] | null
 
   protected textConverter = new TextTermConverter(this)
   protected treeBuilder = new TreeBuilder(this)
 
   constructor(store: Formula) {
     super(store)
+
+    this.incoming = null
   }
 
   serialize(statements: Statement[]): string {
@@ -133,6 +140,8 @@ export class LegacyCompatibleSerializer extends AbstractSerializer implements Le
   }
 
   rootSubjects(sts: Statement[]) {
-    return this.treeBuilder.rootSubjects(sts)
+    const result = this.treeBuilder.rootSubjects(sts)
+    this.incoming = result.incoming
+    return result
   }
 }

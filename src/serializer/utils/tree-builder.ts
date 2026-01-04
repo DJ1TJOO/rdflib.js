@@ -70,7 +70,6 @@ export class TreeBuilder {
         continue
       }
     }
-    this.serializer.incoming = incoming // Keep for serializing @@ Bug for nested formulas
 
     // Now do the scan using existing roots
     var rootsHash: TreeBuilderRootSubjects['rootsHash'] = {}
