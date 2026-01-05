@@ -31,7 +31,7 @@ export class N3Serializer extends AbstractSerializer {
     // A URI Map alows us to put the type statemnts at the top.
     const uriMap = { 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type': 'aaa:00' }
     // Do limited canonicalization of bnodes
-    statements.sort((x, y) => Util.heavyCompareSPO(x, y, this.store, uriMap) as number) // @TODO(serializer-refactor): Utils-js.heavyCompareSPO should be typed, in different pr
+    const sortedStatements = [...statements].sort((x, y) => Util.heavyCompareSPO(x, y, this.store, uriMap) as number) // @TODO(serializer-refactor): Utils-js.heavyCompareSPO should be typed, in different pr
 
     // @TODO(serializer-refactor): Should this be moved to abstract serializer constructor, since xml also uses it?
     if (this.base && !this.defaultNamespace) {
@@ -48,7 +48,7 @@ export class N3Serializer extends AbstractSerializer {
       this.keywords['http://www.w3.org/2000/10/swap/log#implies'] = '=>'
     }
 
-    const tree = this.statementListToTree(statements)
+    const tree = this.statementListToTree(sortedStatements)
     return this.prefixDirectives() + this.treeToString(tree)
   }
 
@@ -82,10 +82,12 @@ export class N3Serializer extends AbstractSerializer {
   // The tree for a subject
   subjectTree(subject: SubjectType, stats: TreeBuilderRootSubjects): TreeBuilderTree {
     if (subject.termType === 'BlankNode' && !stats.incoming[this.toStr(subject)]) {
-      return [this.objectTree(subject, stats, true)].concat(['.']) // Anonymous bnode subject
+      return this.objectTree(subject, stats, true).concat(['.']) // Anonymous bnode subject
     }
 
-    return [this.termToN3(subject, stats)].concat([this.propertyTree(subject, stats)]).concat(['.'])
+    return this.termToN3(subject, stats)
+      .concat([this.propertyTree(subject, stats)])
+      .concat('.')
   }
 
   // The property tree for a single subject or anonymous node
@@ -108,34 +110,34 @@ export class N3Serializer extends AbstractSerializer {
         }
 
         results.push(
-          this.keywords[statement.predicate.uri]
-            ? this.keywords[statement.predicate.uri]
-            : this.termToN3(statement.predicate, stats)
+          ...(this.keywords[statement.predicate.uri]
+            ? [this.keywords[statement.predicate.uri]]
+            : this.termToN3(statement.predicate, stats))
         )
       }
 
       previousPredicate = statement.predicate.uri
-      objects.push(this.objectTree(statement.object, stats))
+      objects.push(...this.objectTree(statement.object, stats))
     }
 
     results.push(objects)
     return results
   }
 
-  objectTree(obj: Node, stats: TreeBuilderRootSubjects, force?: boolean): TreeBuilderNestedTree {
+  objectTree(obj: Node, stats: TreeBuilderRootSubjects, force?: boolean): TreeBuilderTree {
     if (obj.termType === 'BlankNode' && (force || stats.rootsHash[this.toStr(obj)] === undefined)) {
       // if not a root
       if (stats.subjects[this.toStr(obj)]) {
         return ['[', this.propertyTree(obj as BlankNode, stats), ']']
       } else {
-        return '[]'
+        return ['[]']
       }
     }
 
     return this.termToN3(obj, stats)
   }
 
-  termToN3(node: Node, stats: TreeBuilderRootSubjects): TreeBuilderNestedTree {
+  termToN3(node: Node, stats: TreeBuilderRootSubjects): TreeBuilderTree {
     switch (node.termType) {
       case 'Graph':
         return ['{', ...this.statementListToTree((node as Formula).statements), '}']
@@ -148,7 +150,7 @@ export class N3Serializer extends AbstractSerializer {
         return ['(', ...elements, ')']
 
       default:
-        return this.textConverter.atomicTermToN3(node)
+        return [this.textConverter.atomicTermToN3(node)]
     }
   }
 
@@ -162,9 +164,9 @@ export class N3Serializer extends AbstractSerializer {
 
       // Note the space before the dot in case statement ends with 123 or colon. which is in fact allowed but be conservative.
       if (i !== 0) {
-        const lastLineChar = line.slice(-1) || ' '
-
         const isCommaOrSemicolon = branchString === ',' || branchString === ';'
+
+        const lastLineChar = line.slice(-1) || ' '
         const isDotAfterNumberOrColon = branchString === '.' && !'0123456789.:'.includes(lastLineChar)
 
         if (!isCommaOrSemicolon && !isDotAfterNumberOrColon) {
@@ -193,10 +195,10 @@ export class N3Serializer extends AbstractSerializer {
           if (line.length < this.width - this.indent * level) {
             branch = line //   Note! treat as string below
             substr = ''
-            lastLength = Number.MAX_SAFE_INTEGER
           }
         }
 
+        if (substr) lastLength = Number.MAX_SAFE_INTEGER
         result += substr
       }
 
@@ -216,17 +218,16 @@ export class N3Serializer extends AbstractSerializer {
         }
 
         if (
-          lastLength < this.indent * level + 4 || // if new line not necessary
-          (lastLength + branch.length + 1 < this.width && // or the string fits on last line
-            result[result.length - 2] !== ';' && // but not after
-            result[result.length - 2] !== '.')
+          lastLength + branch.length + 1 < this.width && // or the string fits on last line
+          result[result.length - 2] !== ';' && // but not after
+          result[result.length - 2] !== '.'
         ) {
           result = result.slice(0, -1) + ' ' + branch + '\n' // then continue on this line
           lastLength += branch.length + 1
           continue
         }
 
-        let line = ' '.repeat(this.indent * Math.max(level, 0)) + branch
+        const line = ' '.repeat(this.indent * Math.max(level, 0)) + branch
         result += line + '\n'
         lastLength = line.length + 1
 
