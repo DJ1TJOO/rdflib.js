@@ -62,7 +62,7 @@ export class N3Serializer extends AbstractSerializer {
     for (const [ns] of namespacesUsed) {
       directives += '@prefix ' + this.prefixes[ns] + ': ' + this.textConverter.explicitURI(ns) + '.\n'
     }
-    return directives + '\n'
+    return directives + (directives.length > 0 ? '\n' : '')
   }
 
   // //////////////////////////////////////////// Structure for N3
