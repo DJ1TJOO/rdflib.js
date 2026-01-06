@@ -10,15 +10,15 @@ import OldSerializer, { type Serializer } from '../../../../src/serializer/_old/
 
 export type SerializerFactory = (store: Formula) => AbstractSerializer
 
-export function createN3Serializer(store: Formula): AbstractSerializer {
+export function createN3Serializer(store: Formula) {
   return new N3Serializer(store)
 }
 
-export function createNTriplesSerializer(store: Formula): AbstractSerializer {
+export function createNTriplesSerializer(store: Formula) {
   return new NTriplesSerializer(store)
 }
 
-export function createXMLSerializer(store: Formula): AbstractSerializer {
+export function createXMLSerializer(store: Formula) {
   return new XMLSerializer(store)
 }
 
@@ -32,7 +32,7 @@ class EmptySerializer extends AbstractSerializer {
   }
 }
 
-export function createEmptySerializer(store: Formula): AbstractSerializer {
+export function createEmptySerializer(store: Formula) {
   return new EmptySerializer(store)
 }
 
@@ -78,14 +78,14 @@ class OldSerializerXML extends AbstractSerializer {
   }
 }
 
-export function createOldN3Serializer(store: Formula): AbstractSerializer {
+export function createOldN3Serializer(store: Formula) {
   return new OldSerializerN3(store)
 }
 
-export function createOldNTriplesSerializer(store: Formula): AbstractSerializer {
+export function createOldNTriplesSerializer(store: Formula) {
   return new OldSerializerNTriples(store)
 }
 
-export function createOldXMLSerializer(store: Formula): AbstractSerializer {
+export function createOldXMLSerializer(store: Formula) {
   return new OldSerializerXML(store)
 }
