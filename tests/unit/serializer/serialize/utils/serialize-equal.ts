@@ -1,4 +1,5 @@
 import { expect } from 'chai'
+import eol from 'eol'
 import fs from 'fs'
 import path from 'path'
 import { AbstractSerializer, Formula } from '../../../../../src'
@@ -24,7 +25,7 @@ function serializeEqual(
   const serializedString = serializer.serialize(store.statements)
 
   const expectedPath = path.join(__dirname, '..', 'expected', file)
-  const expected = fs.readFileSync(expectedPath).toString()
+  const expected = eol.lf(fs.readFileSync(expectedPath).toString())
 
   expect(serializedString).to.equal(expected)
 }
