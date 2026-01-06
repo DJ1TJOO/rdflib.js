@@ -54,7 +54,7 @@ export class XMLSerializer extends AbstractSerializer {
 
     const namespacesUsed = Array.from(this.namespacesUsed).sort((a, b) => b[1] - a[1])
     for (const [ns] of namespacesUsed) {
-      directives += '\n xmlns:' + this.prefixes[ns] + '="' + this.escapeForXML(this.relURI(ns)) + '"'
+      directives += '\n xmlns:' + this.prefixes[ns] + '="' + this.escapeForXML(ns) + '"'
     }
 
     return directives
