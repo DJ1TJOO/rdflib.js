@@ -186,8 +186,8 @@ export class TextTermConverter {
     return delim + result + string.slice(i) + delim
   }
 
-  explicitURI(uri: string) {
-    if (!this.serializer.flags.includes('r') && this.serializer.base) {
+  explicitURI(uri: string, noBase?: boolean) {
+    if (!noBase && !this.serializer.flags.includes('r') && this.serializer.base) {
       uri = Uri.refTo(this.serializer.base, uri)
     } else if (this.serializer.flags.includes('u')) {
       // Unicode encoding NTriples style

@@ -1,4 +1,4 @@
-@prefix : </#>.
+@base <http://example.com/>.
 
 </subject> </predicate> </object>.
 

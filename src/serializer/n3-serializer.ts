@@ -49,6 +49,11 @@ export class N3Serializer extends AbstractSerializer {
 
   prefixDirectives() {
     let directives = ''
+
+    if (!this.flags.includes('r') && this.base) {
+      directives += '@base ' + this.textConverter.explicitURI(this.base, true) + '.\n'
+    }
+
     if (!this.flags.includes('d') && this.defaultNamespace) {
       directives += '@prefix : ' + this.textConverter.explicitURI(this.defaultNamespace) + '.\n'
     }
