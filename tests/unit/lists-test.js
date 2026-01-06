@@ -1,10 +1,8 @@
-import {expect} from 'chai'
+import { expect } from 'chai'
 
+import DataFactory from '../../src/factories/rdflib-data-factory'
 import { convertFirstRestNil } from '../../src/lists'
 import parse from '../../src/parse'
-import CanonicalDataFactory from '../../src/factories/canonical-data-factory'
-import defaultXSD from '../../src/xsd'
-import DataFactory from '../../src/factories/rdflib-data-factory'
 import serialize from '../../src/serialize'
 
 const prefixes = `
@@ -45,7 +43,8 @@ describe('Lists', () => {
         parse(content, store, base, mimeType)
         convertFirstRestNil(store, doc)
         expect(store.statements[0].object.termType).to.eql('Collection')
-        expect(showDoc(store, doc)).to.eql(`@prefix : <#>.
+        expect(showDoc(store, doc)).to.eql(`@base <https://example.com/tests/test.ttl>.
+@prefix : <#>.
 
 :test :value ( 1 2 3 ).
 
@@ -104,7 +103,8 @@ describe('Lists', () => {
         convertFirstRestNil(store, doc)
         // console.log('@@@ BBB ' + showDoc(store, doc))
         // expect(store.statements[0].object.termType).to.eql('Collection')
-        expect(showDoc(store, doc)).to.eql(`@prefix : <#>.
+        expect(showDoc(store, doc)).to.eql(`@base <https://example.com/tests/test.ttl>.
+@prefix : <#>.
 
 :test :value ( ( 11 12 13 ) 2 3 ).
 
@@ -120,7 +120,8 @@ describe('Lists', () => {
   ' <#test> <#value> rdf:nil .'
         parse(content, store, base, mimeType)
         convertFirstRestNil(store, doc)
-        expect(showDoc(store, doc)).to.eql(`@prefix : <#>.
+        expect(showDoc(store, doc)).to.eql(`@base <https://example.com/tests/test.ttl>.
+@prefix : <#>.
 
 :test :value ( ).
 
@@ -139,7 +140,8 @@ describe('Lists', () => {
   `
         parse(content, store, base, mimeType)
         convertFirstRestNil(store, doc)
-        expect(showDoc(store, doc)).to.eql(`@prefix : <#>.
+        expect(showDoc(store, doc)).to.eql(`@base <https://example.com/tests/test.ttl>.
+@prefix : <#>.
 
 :test :value ( ).
 

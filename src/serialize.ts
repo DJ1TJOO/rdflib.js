@@ -1,4 +1,11 @@
 import Formula from './formula'
+import type { AbstractSerializer } from './serializer/abstract-serializer'
+import { JSONLDSerializer } from './serializer/jsonld-serializer'
+import { N3Serializer } from './serializer/n3-serializer'
+import { NTriplesSerializer } from './serializer/ntriples-serializer'
+import { XMLSerializer } from './serializer/xml-serializer'
+import IndexedFormula from './store'
+import { BlankNode, NamedNode } from './tf-types'
 import {
   ContentType,
   JSONLDContentType,
@@ -9,20 +16,13 @@ import {
   NTriplesContentType,
   RDFXMLContentType,
   TurtleContentType,
-  TurtleLegacyContentType,
+  TurtleLegacyContentType
 } from './types'
-import IndexedFormula from './store'
-import { BlankNode, NamedNode } from './tf-types'
-import type { AbstractSerializer } from './serializer/abstract-serializer'
-import { XMLSerializer } from './serializer/xml-serializer'
-import { N3Serializer } from './serializer/n3-serializer'
-import { NTriplesSerializer } from './serializer/ntriples-serializer'
-import { JSONLDSerializer } from './serializer/jsonld-serializer'
 
 /**
  * Serialize to the appropriate format
  */
-export default function serialize (
+export default function serialize(
   /** The graph or nodes that should be serialized */
   target: Formula | NamedNode | BlankNode | null,
   /** The store */
@@ -39,7 +39,7 @@ export default function serialize (
      * A string of letters, each of which set an options
      * e.g. `deinprstux`
      */
-    flags?: string,
+    flags?: string
     /**
      * A set of [prefix, uri] pairs that define namespace prefixes
      */
@@ -55,7 +55,7 @@ export default function serialize (
   try {
     switch (contentType) {
       case RDFXMLContentType:
-        sz = new XMLSerializer(kb)        
+        sz = new XMLSerializer(kb)
         break
       case N3ContentType:
       case N3LegacyContentType:
@@ -64,7 +64,7 @@ export default function serialize (
       case TurtleContentType:
       case TurtleLegacyContentType:
         // Suppress = for sameAs and => for implies; preserve any user-specified flags (e.g., 'o')
-        flags = 'si' + (opts.flags ? (' ' + opts.flags) : '')
+        flags = 'si' + (opts.flags ? ' ' + opts.flags : '')
         sz = new N3Serializer(kb)
         break
       case NTriplesContentType:
@@ -73,7 +73,7 @@ export default function serialize (
         break
       case JSONLDContentType:
         // turtle + dr (means no default, no relative prefix); preserve user flags
-        flags = 'si dr' + (opts.flags ? (' ' + opts.flags) : '')
+        flags = 'si dr' + (opts.flags ? ' ' + opts.flags : '')
         sz = new JSONLDSerializer(kb)
         break
       case NQuadsContentType:
@@ -84,7 +84,7 @@ export default function serialize (
       default:
         throw new Error('Serialize: Content-type ' + contentType + ' not supported for data write.')
     }
-    
+
     if (flags) sz.setFlags(flags)
     var newSts = kb!.statementsMatching(undefined, undefined, undefined, target as NamedNode)
 
@@ -98,7 +98,10 @@ export default function serialize (
       sz.setNamespaces(opts.namespaces)
     }
 
-    sz.setBase(base)
+    if (base) {
+      sz.setBase(base)
+      sz.setDefaultNamespace(base + '#')
+    }
     const documentString = sz.serialize(newSts)
     return executeCallback(null, documentString)
   } catch (err) {
@@ -109,7 +112,7 @@ export default function serialize (
     throw err // Don't hide problems from caller in sync mode
   }
 
-  function executeCallback (err: Error | null | undefined, result: string | undefined): string | undefined {
+  function executeCallback(err: Error | null | undefined, result: string | undefined): string | undefined {
     if (callback) {
       callback(err, result)
       return

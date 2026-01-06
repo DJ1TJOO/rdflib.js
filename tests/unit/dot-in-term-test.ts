@@ -186,7 +186,8 @@ ex:root ex:child ex:middle ;
         doc
       ))
       const result = serialize(doc, kb, null, 'text/turtle')
-  expect(result).to.equal(`@prefix : </doc#>.
+  expect(result).to.equal(`@base <https://example.net/doc>.
+@prefix : </doc#>.
 
 <https://subject.example> <https://predicate.example> <https://object.example>.
 

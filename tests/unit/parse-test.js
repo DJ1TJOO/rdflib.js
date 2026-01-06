@@ -91,7 +91,8 @@ describe('Parse', () => {
           let content = prefixes + '<http://www.wikidata.org/entity/Q328> schema:label [ rdf:first 1; rdf:rest [ rdf:first 2; rdf:rest [ rdf:first 3; rdf:rest rdf:nil ]]].'
           parse(content, store, base, mimeType)
           expect(store.statements[0].object.termType).to.eql('Collection')
-          expect(squash(gist(store, store.sym(base)))).to.eql(squash(`ent:Q328 rdfs:label ( 1 2 3 ).`))
+          expect(squash(gist(store, store.sym(base)))).to.eql(squash(`@base <https://www.wikidata.org/wiki/Special:EntityData/Q2005.ttl>.
+ent:Q328 rdfs:label ( 1 2 3 ).`))
 
         })
 
@@ -116,7 +117,8 @@ describe('Parse', () => {
         expect(store.statements.length).to.eql(1 + 3 * 2)
 
         expect(squash(gist(store, doc))).to.eql(squash(
-`ent:Q328
+`@base <https://www.wikidata.org/wiki/Special:EntityData/Q2005.ttl>.
+ent:Q328
       rdfs:label
               [
                   rdf:first 1;

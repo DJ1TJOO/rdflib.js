@@ -2,12 +2,12 @@ import { expect } from 'chai'
 import CanonicalDataFactory from '../../src/factories/canonical-data-factory'
 import Formula from '../../src/formula'
 
-import IndexedFormula from '../../src/store'
-import NamedNode from '../../src/named-node'
-import { RDFArrayRemove } from '../../src/utils-js'
 import DataFactory from '../../src/factories/rdflib-data-factory'
+import NamedNode from '../../src/named-node'
 import parse from '../../src/parse'
 import serialize from '../../src/serialize'
+import IndexedFormula from '../../src/store'
+import { RDFArrayRemove } from '../../src/utils-js'
 
 describe('IndexedFormula', () => {
   const g0 = NamedNode.fromValue('https://example.com/graph0')
@@ -389,14 +389,19 @@ describe('IndexedFormula', () => {
               "[0:16:35.259] Done." )
   ].
   `
-    const voidDoc = `@prefix : <#>.
+    const voidMeta = `@base <chrome://TheCurrentSession>.
+@prefix : <#>.
+
+`
+    const voidDoc = `@base <https://bob.localhost:8443/profile/card>.
+@prefix : <#>.
 
 `
 
     it ('removeMetada', () => {
       parse(metaContent, store, meta.value, 'text/turtle')
       store.removeMetadata(store.sym('https://bob.localhost:8443/profile/card'))
-      expect(serialize(meta, store, meta.uri)).to.eql(voidDoc)
+      expect(serialize(meta, store, meta.uri)).to.eql(voidMeta)
     })
     it ('removeDocument', () => {
       parse(metaContent, store, meta.value, 'text/turtle')
@@ -409,7 +414,7 @@ describe('IndexedFormula', () => {
       parse(docContent, store, doc.uri, 'text/turtle')
       // console.log(serialize(null, store, meta.uri))
       store.removeDocument(store.sym('https://bob.localhost:8443/profile/card'))
-      expect(serialize(meta, store, null)).to.eql(voidDoc)
+      expect(serialize(meta, store, null)).to.eql(voidMeta)
       expect(serialize(doc, store, doc.uri)).to.eql(voidDoc)
     })
   })

@@ -15,7 +15,8 @@ describe('serialize text/turtle', () => {
             const kb = graph()
             kb.add(statement)
             const result = serialize(doc, kb, null, 'text/turtle')
-            expect(result).to.equal(`@prefix : </doc#>.
+            expect(result).to.equal(`@base <https://example.net/doc>.
+@prefix : </doc#>.
 
 <https://subject.example> <https://predicate.example> 0.123 .
 
@@ -33,7 +34,8 @@ describe('serialize text/turtle', () => {
             const kb = graph()
             kb.add(statement)
             const result = serialize(doc, kb, null, 'text/turtle')
-            expect(result).to.equal(`@prefix : </doc#>.
+            expect(result).to.equal(`@base <https://example.net/doc>.
+@prefix : </doc#>.
 
 <https://subject.example> <https://predicate.example> 123 .
 
@@ -51,7 +53,8 @@ describe('serialize text/turtle', () => {
             const kb = graph()
             kb.add(statement)
             const result = serialize(doc, kb, null, 'text/turtle')
-            expect(result).to.equal(`@prefix : </doc#>.
+            expect(result).to.equal(`@base <https://example.net/doc>.
+@prefix : </doc#>.
 
 <https://subject.example> <https://predicate.example> 0.123e0 .
 
@@ -69,7 +72,8 @@ describe('serialize text/turtle', () => {
             const kb = graph()
             kb.add(statement)
             const result = serialize(doc, kb, null, 'text/turtle')
-            expect(result).to.equal(`@prefix : </doc#>.
+            expect(result).to.equal(`@base <https://example.net/doc>.
+@prefix : </doc#>.
 
 <https://subject.example> <https://predicate.example> 123.0e0 .
 
@@ -87,7 +91,8 @@ describe('serialize text/turtle', () => {
             const kb = graph()
             kb.add(statement)
             const result = serialize(doc, kb, null, 'text/turtle')
-            expect(result).to.equal(`@prefix : </doc#>.
+            expect(result).to.equal(`@base <https://example.net/doc>.
+@prefix : </doc#>.
 
 <https://subject.example> <https://predicate.example> 0.123e2 .
 
@@ -105,7 +110,8 @@ describe('serialize text/turtle', () => {
             const kb = graph()
             kb.add(statement)
             const result = serialize(doc, kb, null, 'text/turtle')
-            expect(result).to.equal(`@prefix : </doc#>.
+            expect(result).to.equal(`@base <https://example.net/doc>.
+@prefix : </doc#>.
 
 <https://subject.example> <https://predicate.example> 0.123e-2 .
 
@@ -123,7 +129,8 @@ describe('serialize text/turtle', () => {
             const kb = graph()
             kb.add(statement)
             const result = serialize(doc, kb, null, 'text/turtle')
-            expect(result).to.equal(`@prefix : </doc#>.
+            expect(result).to.equal(`@base <https://example.net/doc>.
+@prefix : </doc#>.
 
 <https://subject.example> <https://predicate.example> 0.123E2 .
 
@@ -141,7 +148,8 @@ describe('serialize text/turtle', () => {
             const kb = graph()
             kb.add(statement)
             const result = serialize(doc, kb, null, 'text/turtle')
-            expect(result).to.equal(`@prefix : </doc#>.
+            expect(result).to.equal(`@base <https://example.net/doc>.
+@prefix : </doc#>.
 
 <https://subject.example> <https://predicate.example> 123e2 .
 
@@ -159,7 +167,8 @@ describe('serialize text/turtle', () => {
             const kb = graph()
             kb.add(statement)
             const result = serialize(doc, kb, null, 'text/turtle')
-            expect(result).to.equal(`@prefix : </doc#>.
+            expect(result).to.equal(`@base <https://example.net/doc>.
+@prefix : </doc#>.
 
 <https://subject.example> <https://predicate.example> 123e-2 .
 
@@ -180,9 +189,10 @@ describe('serialize text/turtle', () => {
         kb.setPrefixForURI("example", "https://example.com/")
         kb.add(statement)
         const result = serialize(doc, kb, null, 'text/turtle')
-        expect(result).to.equal(`@prefix : </doc#>.
-@prefix schema: <http://schema.org/>.
+        expect(result).to.equal(`@base <https://example.net/doc>.
+@prefix : </doc#>.
 @prefix example: <https://example.com/>.
+@prefix schema: <http://schema.org/>.
 
 example:subject schema:predicate 123e-2 .
 
@@ -204,9 +214,10 @@ example:subject schema:predicate 123e-2 .
         kb.setPrefixForURI("example2", "https://example.com/")
         kb.add(statement)
         const result = serialize(doc, kb, null, 'text/turtle')
-        expect(result).to.equal(`@prefix : </doc#>.
-@prefix schema: <http://schema.org/>.
+        expect(result).to.equal(`@base <https://example.net/doc>.
+@prefix : </doc#>.
 @prefix example2: <https://example.com/>.
+@prefix schema: <http://schema.org/>.
 
 example2:subject schema:predicate 123e-2 .
 
@@ -229,8 +240,8 @@ example2:subject schema:predicate 123e-2 .
         const result = kb.serialize(null, 'text/turtle', null)
 
         //const result = serialize(doc, kb, null, 'text/turtle')
-        expect(result).to.equal(`@prefix schema2: <http://schema.org/>.
-@prefix example: <https://example.com/>.
+        expect(result).to.equal(`@prefix example: <https://example.com/>.
+@prefix schema2: <http://schema.org/>.
 
 example:subject schema2:predicate 123e-2 .
 
@@ -260,9 +271,10 @@ example:subject schema2:predicate 123e-2 .
       const result = serialize(doc, kb, null, 'text/turtle')
 
       //const result = serialize(doc, kb, null, 'text/turtle')
-      expect(result).to.equal(`@prefix : </doc#>.
-@prefix schema: <http://schema.org/>.
+      expect(result).to.equal(`@base <https://example.net/doc>.
+@prefix : </doc#>.
 @prefix example: <https://example.com/>.
+@prefix schema: <http://schema.org/>.
 @prefix obj: <https://example.com/object/>.
 
 example:subject schema:predicate obj: .
@@ -274,9 +286,10 @@ example:subject schema:predicate obj: .
 
 describe('parse --> serialize', () => {
   describe('example 0', () => {
-    const ttl0 = `@prefix : <#>.
-@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
+    const ttl0 = `@base <https://www.example.org/abc/def>.
+@prefix : <#>.
 @prefix vocab: <http://example.com/foo/vocab#>.
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
 
 vocab:building0 vocab:bar 123, 78768; vocab:connectsTo vocab:building4 .
 
@@ -286,8 +299,8 @@ vocab:building1 vocab:created "2012-03-12"^^xsd:date; vocab:length 145000.0e0 .
 
     const jsonld0 = `{
   "@context": {
-    "xsd": "http://www.w3.org/2001/XMLSchema#",
-    "vocab": "http://example.com/foo/vocab#"
+    "vocab": "http://example.com/foo/vocab#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#"
   },
   "@graph": [
     {
@@ -366,10 +379,11 @@ vocab:building1 vocab:created "2012-03-12"^^xsd:date; vocab:length 145000.0e0 .
   })
 
   describe('example 1', () => {
-    const ttl1 = `@prefix : <#>.
+    const ttl1 = `@base <https://www.example.org/abc/def>.
+@prefix : <#>.
 @prefix pad: <http://www.w3.org/ns/pim/pad#>.
-@prefix sioc: <http://rdfs.org/sioc/ns#>.
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
+@prefix sioc: <http://rdfs.org/sioc/ns#>.
 
 :id1443100844982
     sioc:content
@@ -382,12 +396,12 @@ vocab:building1 vocab:created "2012-03-12"^^xsd:date; vocab:length 145000.0e0 .
     pad:next :id1443100912627 .
 `
 
-    const jsonld1 = (prefix) => `{
+    const jsonld1 = prefix => `{
   "@context": {
     "pad": "http://www.w3.org/ns/pim/pad#",
-    "sioc": "http://rdfs.org/sioc/ns#",
+    "${prefix}": "https://www.example.org/abc/def#",
     "xsd": "http://www.w3.org/2001/XMLSchema#",
-    "${prefix}": "https://www.example.org/abc/def#"
+    "sioc": "http://rdfs.org/sioc/ns#"
   },
   "@id": "${prefix}:id1443100844982",
   "sioc:content": "kasdfjsahdkfhkjhdkjsfhjkasdfkhjkajkdsajkhadsfkhjhjkdfajsdsafhjkdfhjksa",
@@ -415,8 +429,8 @@ vocab:building1 vocab:created "2012-03-12"^^xsd:date; vocab:length 145000.0e0 .
 
     const xml1 = `<rdf:RDF
  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
- xmlns:sioc="http://rdfs.org/sioc/ns#"
- xmlns:pad="http://www.w3.org/ns/pim/pad#">
+ xmlns:pad="http://www.w3.org/ns/pim/pad#"
+ xmlns:sioc="http://rdfs.org/sioc/ns#">
     <rdf:Description rdf:about="https://www.example.org/abc/def#id1443100844982">
         <sioc:content>kasdfjsahdkfhkjhdkjsfhjkasdfkhjkajkdsajkhadsfkhjhjkdfajsdsafhjkdfhjksa</sioc:content>
         <pad:date rdf:datatype="http://www.w3.org/2001/XMLSchema#date">2012-12-10</pad:date>
@@ -424,7 +438,7 @@ vocab:building1 vocab:created "2012-03-12"^^xsd:date; vocab:length 145000.0e0 .
         <pad:decimal rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">12</pad:decimal>
         <pad:float rdf:datatype="http://www.w3.org/2001/XMLSchema#double">3.141</pad:float>
         <pad:integer rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">0</pad:integer>
-        <pad:next rdf:resource="https://www.example.org/abc/def#id1443100912627"/>
+        <pad:next rdf:resource="https://www.example.org/abc/def#id1443100912627" />
     </rdf:Description>
 </rdf:RDF>
 `
@@ -488,7 +502,8 @@ vocab:building1 vocab:created "2012-03-12"^^xsd:date; vocab:length 145000.0e0 .
   })
 
   describe('collections', () => {
-    const ttlCollection = `@prefix : </#>.
+    const ttlCollection = `@base <https://www.example.org/>.
+@prefix : </#>.
 @prefix n: <https://example.org/ns#>.
 @prefix exa: <http://example.com/>.
 
@@ -497,11 +512,11 @@ vocab:building1 vocab:created "2012-03-12"^^xsd:date; vocab:length 145000.0e0 .
 `    
     const jsonldCollection0 = `{
   "@context": {
+    "www": "https://www.example.org/#",
     "n": "https://example.org/ns#",
-    "exa": "http://example.com/",
-    "n0": "https://www.example.org/#"
+    "exa": "http://example.com/"
   },
-  "@id": "n0:me",
+  "@id": "www:me",
   "n:listProp": {
     "@list": [
       "list item 0",
@@ -514,11 +529,11 @@ vocab:building1 vocab:created "2012-03-12"^^xsd:date; vocab:length 145000.0e0 .
 }`
 const jsonldCollection1 = `{
   "@context": {
-    "n0": "https://www.example.org/#",
+    "www": "https://www.example.org/#",
     "n": "https://example.org/ns#",
     "exa": "http://example.com/"
   },
-  "@id": "n0:me",
+  "@id": "www:me",
   "n:listProp": {
     "@list": [
       "list item 0",
