@@ -147,7 +147,8 @@ export abstract class AbstractSerializer {
     if (uri in this.prefixes) return this.prefixes[uri]
 
     let prefix = uri
-    if (prefix.endsWith('#') || prefix.endsWith('/')) prefix = prefix.slice(0, -1)
+    if (prefix.endsWith('/#')) prefix = prefix.slice(0, -2)
+    else if (prefix.endsWith('#') || prefix.endsWith('/')) prefix = prefix.slice(0, -1)
 
     const slash = prefix.lastIndexOf('/')
     if (slash >= 0) prefix = prefix.slice(slash + 1)
