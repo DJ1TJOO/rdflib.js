@@ -33,11 +33,6 @@ export class N3Serializer extends AbstractSerializer {
     // Do limited canonicalization of bnodes
     const sortedStatements = [...statements].sort((x, y) => Util.heavyCompareSPO(x, y, this.store, uriMap) as number) // @TODO(serializer-refactor): Utils-js.heavyCompareSPO should be typed, in different pr
 
-    // @TODO(serializer-refactor): Should this be moved to abstract serializer constructor, since xml also uses it?
-    if (this.base && !this.defaultNamespace) {
-      this.defaultNamespace = this.base + '#'
-    }
-
     if (!this.flags.includes('s')) {
       this.keywords['http://www.w3.org/2002/07/owl#sameAs'] = '='
     }
@@ -53,17 +48,16 @@ export class N3Serializer extends AbstractSerializer {
   }
 
   prefixDirectives() {
-    let str = ''
+    let directives = ''
     if (!this.flags.includes('d') && this.defaultNamespace) {
-      str += '@prefix : ' + this.textConverter.explicitURI(this.defaultNamespace) + '.\n'
+      directives += '@prefix : ' + this.textConverter.explicitURI(this.defaultNamespace) + '.\n'
     }
 
-    for (const ns in this.prefixes) {
-      if (!this.prefixes.hasOwnProperty(ns)) continue
-      if (!this.namespacesUsed[ns]) continue
-      str += '@prefix ' + this.prefixes[ns] + ': ' + this.textConverter.explicitURI(ns) + '.\n'
+    const namespacesUsed = Array.from(this.namespacesUsed).sort((a, b) => b[1] - a[1])
+    for (const [ns] of namespacesUsed) {
+      directives += '@prefix ' + this.prefixes[ns] + ': ' + this.textConverter.explicitURI(ns) + '.\n'
     }
-    return str + '\n'
+    return directives + '\n'
   }
 
   // //////////////////////////////////////////// Structure for N3
@@ -124,17 +118,17 @@ export class N3Serializer extends AbstractSerializer {
     return results
   }
 
-  objectTree(obj: Node, stats: TreeBuilderRootSubjects, force?: boolean): TreeBuilderTree {
-    if (obj.termType === 'BlankNode' && (force || stats.rootsHash[this.toStr(obj)] === undefined)) {
+  objectTree(object: Node, stats: TreeBuilderRootSubjects, force?: boolean): TreeBuilderTree {
+    if (object.termType === 'BlankNode' && (force || stats.rootsHash[this.toStr(object)] === undefined)) {
       // if not a root
-      if (stats.subjects[this.toStr(obj)]) {
-        return ['[', this.propertyTree(obj as BlankNode, stats), ']']
+      if (stats.subjects[this.toStr(object)]) {
+        return ['[', this.propertyTree(object as BlankNode, stats), ']']
       } else {
         return ['[]']
       }
     }
 
-    return this.termToN3(obj, stats)
+    return this.termToN3(object, stats)
   }
 
   termToN3(node: Node, stats: TreeBuilderRootSubjects): TreeBuilderTree {
@@ -143,10 +137,9 @@ export class N3Serializer extends AbstractSerializer {
         return ['{', ...this.statementListToTree((node as Formula).statements), '}']
 
       case 'Collection':
-        const elements: TreeBuilderNestedTree = []
-        for (const element of (node as Collection).elements) {
-          elements.push(this.objectTree(element, stats))
-        }
+        const elements: TreeBuilderNestedTree = (node as Collection).elements.map(element =>
+          this.objectTree(element, stats)
+        )
         return ['(', ...elements, ')']
 
       default:

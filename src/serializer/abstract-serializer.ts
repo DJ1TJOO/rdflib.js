@@ -9,7 +9,7 @@ import { createXSD } from '../xsd'
 // Types for the Serializer
 export interface SerializerPrefixes extends Record<string, string> {}
 export interface SerializerNamespaces extends Record<string, string> {}
-export interface SerializerNamespacesUsed extends Record<string, boolean> {}
+export type SerializerNamespacesUsed = Map<string, number>
 export interface SerializerFormulas extends Record<string, Formula> {}
 
 export abstract class AbstractSerializer {
@@ -38,7 +38,7 @@ export abstract class AbstractSerializer {
 
     this.prefixes = {} // suggested prefixes
     this.namespaces = {} // complementary
-    this.namespacesUsed = {} // Count actually used and so needed in @prefixes
+    this.namespacesUsed = new Map() // Keep track of used namespaces needed to generate
 
     const ns = solidNs()
     for (const prefix in ns) {
@@ -59,6 +59,11 @@ export abstract class AbstractSerializer {
 
   setBase(base: string | null = null) {
     this.base = base
+    return this
+  }
+
+  setDefaultNamespace(namespace: string | null = null) {
+    this.defaultNamespace = namespace
     return this
   }
 
@@ -182,6 +187,13 @@ export abstract class AbstractSerializer {
     if (!prefix) return false // empty strings not suitable
 
     return true
+  }
+
+  useNamespace(namespace: string) {
+    if (!(namespace in this.prefixes)) return this
+
+    this.namespacesUsed.set(namespace, (this.namespacesUsed.get(namespace) ?? 0) + 1)
+    return this
   }
 
   checkIntegrity() {

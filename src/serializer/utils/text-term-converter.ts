@@ -98,17 +98,11 @@ export class TextTermConverter {
     // Also don't split if namespace is the base directory (would serialize as relative URI)
     let baseDir = this.serializer.base
     if (baseDir) {
-      // let baseDirSeparator = baseDir.indexOf('#')
-      // if (baseDirSeparator < 0 && !this.serializer.flags.includes('/')) {
-      //   baseDirSeparator = baseDir.lastIndexOf('/')
-      // }
-      // baseDir = baseDir.slice(0, baseDirSeparator + 1)
-
-      // @TODO(serializer-refactor): Should this not work as above? Same as L76-79
-      const lastIndexOfHash = baseDir.lastIndexOf('#')
-      const lastIndexOfSlash = baseDir.lastIndexOf('/')
-      const maxIndex = Math.max(lastIndexOfSlash, lastIndexOfHash)
-      baseDir = baseDir.slice(0, maxIndex + 1)
+      let baseDirSeparator = baseDir.indexOf('#')
+      if (baseDirSeparator < 0 && !this.serializer.flags.includes('/')) {
+        baseDirSeparator = baseDir.lastIndexOf('/')
+      }
+      baseDir = baseDir.slice(0, baseDirSeparator + 1)
     }
 
     const namespaceIsBaseDir = baseDir && namespace === baseDir
@@ -125,9 +119,8 @@ export class TextTermConverter {
     if (
       this.serializer.defaultNamespace &&
       this.serializer.defaultNamespace === namespace &&
-      !this.serializer.flags.includes('d')
+      !this.serializer.flags.includes('d') // d -> suppress default
     ) {
-      // d -> suppress default
       if (this.serializer.flags.includes('k') && !TextTermConverter.keywords.includes(localname)) {
         return localname
       }
@@ -139,7 +132,7 @@ export class TextTermConverter {
     let prefix = this.serializer.prefixes[namespace]
     if (!prefix) prefix = this.serializer.makeUpPrefix(namespace)
 
-    this.serializer.namespacesUsed[namespace] = true
+    this.serializer.useNamespace(namespace)
     return prefix + ':' + localname
   }
 

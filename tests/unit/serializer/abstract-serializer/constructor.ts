@@ -10,7 +10,7 @@ describe('constructor', () => {
     expect(serializer.flags).to.equal('')
     expect(serializer.base).to.be.null
     expect(serializer.defaultNamespace).to.be.null
-    expect(serializer.namespacesUsed).to.deep.equal({})
+    expect(serializer.namespacesUsed).to.deep.equal(new Map())
     expect(serializer.formulas).to.deep.equal({})
     expect(serializer.store).to.equal(store)
   })
