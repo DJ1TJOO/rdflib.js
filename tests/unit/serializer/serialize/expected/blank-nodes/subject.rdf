@@ -2,6 +2,6 @@
  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
  xmlns:exa="http://example.com/">
     <rdf:Description rdf:nodeID="b1">
-       <exa:predicate rdf:resource="http://example.com/object"/>
+        <exa:predicate rdf:resource="http://example.com/object" />
     </rdf:Description>
 </rdf:RDF>

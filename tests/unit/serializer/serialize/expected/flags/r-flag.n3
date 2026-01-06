@@ -1,4 +1,2 @@
-@prefix : <http://example.com/#>.
-
 <http://example.com/subject>
 <http://example.com/predicate> <http://example.com/object>.

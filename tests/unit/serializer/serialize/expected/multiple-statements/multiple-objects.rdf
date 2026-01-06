@@ -3,7 +3,7 @@
  xmlns:exa="http://example.com/">
     <rdf:Description rdf:about="http://example.com/subject">
         <exa:predicate>value</exa:predicate>
-        <exa:predicate rdf:resource="http://example.com/object1"/>
-        <exa:predicate rdf:resource="http://example.com/object2"/>
+        <exa:predicate rdf:resource="http://example.com/object1" />
+        <exa:predicate rdf:resource="http://example.com/object2" />
     </rdf:Description>
 </rdf:RDF>

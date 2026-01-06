@@ -1,5 +1,5 @@
-@prefix more: <http://example.com/more-specific/>.
 @prefix exa: <http://example.com/>.
+@prefix more: <http://example.com/more-specific/>.
 
 more:subject exa:predicate exa:object.
 

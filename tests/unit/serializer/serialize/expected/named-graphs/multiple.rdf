@@ -2,9 +2,9 @@
  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
  xmlns:exa="http://example.com/">
     <rdf:Description rdf:about="http://example.com/subject1">
-       <exa:predicate rdf:resource="http://example.com/object1"/>
+        <exa:predicate rdf:resource="http://example.com/object1" />
     </rdf:Description>
     <rdf:Description rdf:about="http://example.com/subject2">
-       <exa:predicate rdf:resource="http://example.com/object2"/>
+        <exa:predicate rdf:resource="http://example.com/object2" />
     </rdf:Description>
 </rdf:RDF>

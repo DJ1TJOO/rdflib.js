@@ -1,5 +1,5 @@
-@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
 @prefix exa: <http://example.com/>.
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
 
 exa:subject exa:predicate "42"^^xsd:integer.
 

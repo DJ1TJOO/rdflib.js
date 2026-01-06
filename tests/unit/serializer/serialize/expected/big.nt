@@ -23,9 +23,18 @@ exa:org1 foaf:name "Acme Corp" .
 exa:org2 exa:foundedBy exa:person3 .
 exa:org2 rdf:type foaf:Organization .
 exa:org2 foaf:name "Tech Inc" .
-exa:person1 exa:bio """Alice is a software engineer
-who loves programming
-and open source.""" .
+_:n3 rdf:first exa:item4.
+_:n3 rdf:rest rdf:nil.
+_:n4 rdf:first "item3".
+_:n4 rdf:rest _:n3.
+_:n5 rdf:first _:bigChild.
+_:n5 rdf:rest _:n4.
+_:n6 rdf:first "item2".
+_:n6 rdf:rest _:n5.
+_:n7 rdf:first "item1".
+_:n7 rdf:rest _:n6.
+exa:person1 exa:bigCollection _:n7 .
+exa:person1 exa:bio "Alice is a software engineer who loves programming and open source. This is just a very long line of text to test the serializer. It should not be split into multiple lines." .
 exa:person1 exa:birthDate "1993-01-15T00:00:00Z"^^xsd:dateTime .
 exa:person1 exa:complex _:complex .
 exa:person1 exa:edgeCase1 0.123e2 .
@@ -38,15 +47,15 @@ exa:person1 exa:privateNote "This is a private note" .
 exa:person1 exa:project exa:project1 .
 exa:person1 exa:project exa:project2 .
 exa:person1 exa:project exa:project3 .
-_:n3 rdf:first "Java".
-_:n3 rdf:rest rdf:nil.
-_:n4 rdf:first "Python".
-_:n4 rdf:rest _:n3.
-_:n5 rdf:first "TypeScript".
-_:n5 rdf:rest _:n4.
-_:n6 rdf:first "JavaScript".
-_:n6 rdf:rest _:n5.
-exa:person1 exa:skills _:n6 .
+_:n8 rdf:first "Java".
+_:n8 rdf:rest rdf:nil.
+_:n9 rdf:first "Python".
+_:n9 rdf:rest _:n8.
+_:n10 rdf:first "TypeScript".
+_:n10 rdf:rest _:n9.
+_:n11 rdf:first "JavaScript".
+_:n11 rdf:rest _:n10.
+exa:person1 exa:skills _:n11 .
 exa:person1 exa:tag "developer" .
 exa:person1 exa:tag "fullstack" .
 exa:person1 exa:tag "senior" .
@@ -62,13 +71,13 @@ exa:person1 foaf:name "Alice" .
 exa:person1 foaf:name "Alice"@en .
 exa:person1 foaf:name "Alicia"@es .
 exa:person2 exa:birthDate "1998-05-20T12:30:00Z"^^xsd:dateTime .
-_:n7 rdf:first 42.
-_:n7 rdf:rest rdf:nil.
-_:n8 rdf:first act:Hiking.
-_:n8 rdf:rest _:n7.
-_:n9 rdf:first "Reading".
-_:n9 rdf:rest _:n8.
-exa:person2 exa:hobbies _:n9 .
+_:n12 rdf:first 42.
+_:n12 rdf:rest rdf:nil.
+_:n13 rdf:first act:Hiking.
+_:n13 rdf:rest _:n12.
+_:n14 rdf:first "Reading".
+_:n14 rdf:rest _:n13.
+exa:person2 exa:hobbies _:n14 .
 exa:person2 exa:isActive false .
 exa:person2 exa:privateNote "Another private note" .
 exa:person2 schema:address _:b2 .
@@ -78,17 +87,17 @@ exa:person2 foaf:knows exa:person3 .
 exa:person2 foaf:member exa:org1 .
 exa:person2 foaf:name "Bob"@en .
 exa:person2 foaf:name "Robert"@en .
-_:n10 rdf:first "item3".
-_:n10 rdf:rest rdf:nil.
-_:n12 rdf:first "nested2".
-_:n12 rdf:rest rdf:nil.
-_:n13 rdf:first "nested1".
-_:n13 rdf:rest _:n12.
-_:n11 rdf:first _:n13.
-_:n11 rdf:rest _:n10.
-_:n14 rdf:first "item1".
-_:n14 rdf:rest _:n11.
-exa:person3 exa:nested _:n14 .
+_:n15 rdf:first "item3".
+_:n15 rdf:rest rdf:nil.
+_:n17 rdf:first "nested2".
+_:n17 rdf:rest rdf:nil.
+_:n18 rdf:first "nested1".
+_:n18 rdf:rest _:n17.
+_:n16 rdf:first _:n18.
+_:n16 rdf:rest _:n15.
+_:n19 rdf:first "item1".
+_:n19 rdf:rest _:n16.
+exa:person3 exa:nested _:n19 .
 exa:person3 rdf:type foaf:Person .
 exa:person3 foaf:age 35 .
 exa:person3 foaf:member exa:org2 .
@@ -104,8 +113,60 @@ _:b2 schema:address "456 Oak Ave" .
 _:b2 rdf:type exa:Address .
 _:b4 exa:related _:n0 .
 _:b4 schema:address "789 Pine Rd" .
+_:bigChild exa:boolean1 true .
+_:bigChild exa:boolean2 false .
+_:bigChild exa:date1 "2020-01-01"^^xsd:date .
+_:bigChild exa:date2 "2021-06-15"^^xsd:date .
+_:bigChild exa:datetime1 "2020-01-01T00:00:00Z"^^xsd:dateTime .
+_:bigChild exa:datetime2 "2021-06-15T12:30:00Z"^^xsd:dateTime .
+_:bigChild exa:decimal1 10.5 .
+_:bigChild exa:decimal2 20.75 .
+_:bigChild exa:decimal3 30.25 .
+_:bigChild exa:description "This is a comprehensive description of a very big child node that contains many properties and relationships to test serialization of complex structures in collections." .
+_:bigChild exa:field10 "value10" .
+_:bigChild exa:field11 "value11" .
+_:bigChild exa:field12 "value12" .
+_:bigChild exa:field13 "value13" .
+_:bigChild exa:field14 "value14" .
+_:bigChild exa:field15 "value15" .
+_:bigChild exa:field16 "value16" .
+_:bigChild exa:field17 "value17" .
+_:bigChild exa:field18 "value18" .
+_:bigChild exa:field19 "value19" .
+_:bigChild exa:field1 "value1" .
+_:bigChild exa:field20 "value20" .
+_:bigChild exa:field2 "value2" .
+_:bigChild exa:field3 "value3" .
+_:bigChild exa:field4 "value4" .
+_:bigChild exa:field5 "value5" .
+_:bigChild exa:field6 "value6" .
+_:bigChild exa:field7 "value7" .
+_:bigChild exa:field8 "value8" .
+_:bigChild exa:field9 "value9" .
+_:bigChild exa:lang1 "Hello"@en .
+_:bigChild exa:lang2 "Bonjour"@fr .
+_:bigChild exa:lang3 "Hola"@es .
+_:bigChild exa:lang4 "Guten Tag"@de .
+_:bigChild exa:multiline """This is a very long multiline text
+that spans multiple lines
+and contains various characters
+including special symbols: !@#$%^&*()""" .
+_:bigChild exa:nested1 _:b1 .
+_:bigChild exa:nested2 _:b2 .
+_:bigChild exa:nested3 _:n0 .
+_:bigChild exa:nested4 _:b4 .
+_:bigChild exa:number1 1 .
+_:bigChild exa:number2 2 .
+_:bigChild exa:number3 3 .
+_:bigChild exa:number4 4 .
+_:bigChild exa:number5 5 .
+_:bigChild exa:ref1 exa:person1 .
+_:bigChild exa:ref2 exa:person2 .
+_:bigChild exa:ref3 exa:org1 .
+_:bigChild exa:ref4 exa:org2 .
+_:bigChild rdf:type exa:BigDataObject .
 _:complex exa:prop1 "value1" .
-_:complex exa:prop2 value2 .
+_:complex exa:prop2 2 .
 _:complex exa:prop3 _:b1 .
 _:complex exa:prop4 exa:person1 .
 _:complex rdf:type exa:ComplexObject .

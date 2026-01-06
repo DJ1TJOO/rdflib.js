@@ -2,14 +2,14 @@
  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
  xmlns:exa="http://example.com/">
     <rdf:Description rdf:about="http://example.com/subject">
-       <exa:predicate>text with
+        <exa:predicate>text with
 newline</exa:predicate>
     </rdf:Description>
     <rdf:Description rdf:about="http://example.com/subject2">
-       <exa:predicate>text with &quot;quotes&quot;</exa:predicate>
+        <exa:predicate>text with &quot;quotes&quot;</exa:predicate>
     </rdf:Description>
     <rdf:Description rdf:about="http://example.com/subject3">
-       <exa:predicate>multiline
+        <exa:predicate>multiline
 text
 with
 newlines</exa:predicate>

@@ -1,4 +1,4 @@
 @prefix : <http://example.com/>.
 
-subject predicate object.
+:subject :predicate :object.
 

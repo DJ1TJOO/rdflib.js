@@ -1,5 +1,5 @@
-@prefix exa: <http://example.com/#>.
 @prefix ex: <http://example.com/>.
+@prefix exa: <http://example.com/#>.
 
 exa: ex:predicate ex:object.
 

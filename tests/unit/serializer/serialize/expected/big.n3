@@ -1,8 +1,8 @@
-@prefix dc: <http://purl.org/dc/elements/1.1/>.
+@prefix exa: <http://example.com/>.
 @prefix foaf: <http://xmlns.com/foaf/0.1/>.
 @prefix schema: <http://schema.org/>.
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
-@prefix exa: <http://example.com/>.
+@prefix dc: <http://purl.org/dc/elements/1.1/>.
 @prefix act: <http://example.com/activity/>.
 
 exa:org1
@@ -25,19 +25,76 @@ exa:org2 a foaf:Organization; exa:foundedBy exa:person3; foaf:name "Tech Inc".
 
 exa:person1
     a foaf:Person;
+    exa:bigCollection
+        ( "item1" "item2"
+            [
+                a exa:BigDataObject;
+                exa:boolean1 true;
+                exa:boolean2 false;
+                exa:date1 "2020-01-01"^^xsd:date;
+                exa:date2 "2021-06-15"^^xsd:date;
+                exa:datetime1 "2020-01-01T00:00:00Z"^^xsd:dateTime;
+                exa:datetime2 "2021-06-15T12:30:00Z"^^xsd:dateTime;
+                exa:decimal1 10.5;
+                exa:decimal2 20.75;
+                exa:decimal3 30.25;
+                exa:description
+                    "This is a comprehensive description of a very big child node that contains many properties and relationships to test serialization of complex structures in collections.";
+                exa:field1 "value1";
+                exa:field10 "value10";
+                exa:field11 "value11";
+                exa:field12 "value12";
+                exa:field13 "value13";
+                exa:field14 "value14";
+                exa:field15 "value15";
+                exa:field16 "value16";
+                exa:field17 "value17";
+                exa:field18 "value18";
+                exa:field19 "value19";
+                exa:field2 "value2";
+                exa:field20 "value20";
+                exa:field3 "value3";
+                exa:field4 "value4";
+                exa:field5 "value5";
+                exa:field6 "value6";
+                exa:field7 "value7";
+                exa:field8 "value8";
+                exa:field9 "value9";
+                exa:lang1 "Hello"@en;
+                exa:lang2 "Bonjour"@fr;
+                exa:lang3 "Hola"@es;
+                exa:lang4 "Guten Tag"@de;
+                exa:multiline
+                    """This is a very long multiline text
+that spans multiple lines
+and contains various characters
+including special symbols: !@#$%^&*()""";
+                exa:nested1 _:b1;
+                exa:nested2 _:b2;
+                exa:nested3 _:n0;
+                exa:nested4 _:b4;
+                exa:number1 1;
+                exa:number2 2;
+                exa:number3 3;
+                exa:number4 4;
+                exa:number5 5;
+                exa:ref1 exa:person1;
+                exa:ref2 exa:person2;
+                exa:ref3 exa:org1;
+                exa:ref4 exa:org2
+            ]
+        "item3" exa:item4 );
     exa:bio
-        """Alice is a software engineer
-who loves programming
-and open source.""";
+        "Alice is a software engineer who loves programming and open source. This is just a very long line of text to test the serializer. It should not be split into multiple lines.";
     exa:birthDate "1993-01-15T00:00:00Z"^^xsd:dateTime;
     exa:complex
-            [
-                a exa:ComplexObject;
-                exa:prop1 "value1";
-                exa:prop2 value2;
-                exa:prop3 _:b1;
-                exa:prop4 exa:person1
-            ];
+        [
+            a exa:ComplexObject;
+            exa:prop1 "value1";
+            exa:prop2 2;
+            exa:prop3 _:b1;
+            exa:prop4 exa:person1
+        ];
     exa:edgeCase1 0.123e2;
     exa:edgeCase2 123e-2;
     exa:edgeCase3

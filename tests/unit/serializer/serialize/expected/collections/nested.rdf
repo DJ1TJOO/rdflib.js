@@ -2,6 +2,15 @@
  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
  xmlns:exa="http://example.com/">
     <rdf:Description rdf:about="http://example.com/subject">
-       <exa:predicate rdf:parseType="Collection"></exa:predicate>
+        <exa:predicate rdf:parseType="Collection">
+            <rdf:Description rdf:value="item1" />
+            <rdf:Description>
+                <rdf:value rdf:parseType="Collection">
+                    <rdf:Description rdf:value="nested1" />
+                    <rdf:Description rdf:value="nested2" />
+                </rdf:value>
+            </rdf:Description>
+            <rdf:Description rdf:value="item3" />
+        </exa:predicate>
     </rdf:Description>
 </rdf:RDF>
