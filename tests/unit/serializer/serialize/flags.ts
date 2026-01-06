@@ -232,7 +232,7 @@ describe('flags', () => {
 
       // Used by N3 and XML serializers. Ignored by NTriples serializer.
       serializeEqualMultiple(store, 'flags/d-flag', ['n3', 'nt', 'rdf'], serializer => {
-        serializer.setBase('http://example.com/#')
+        serializer.setDefaultNamespace('http://example.com/#')
         serializer.setPrefix('exa', 'http://example.com/')
         serializer.setFlags('d')
       })
@@ -296,9 +296,9 @@ describe('flags', () => {
   describe('k flag - allow keywords without colon', () => {
     describe('should allow keywords without colon prefix with k flag', () => {
       const statement = st(
-        sym('http://example.com/#subject'),
-        sym('http://example.com/#predicate'),
-        sym('http://example.com/#object')
+        sym('http://example.com/subject'),
+        sym('http://example.com/predicate'),
+        sym('http://example.com/object')
       )
 
       const store = graph()
@@ -306,7 +306,7 @@ describe('flags', () => {
 
       // Used by N3 serializer only. Ignored by NTriples and XML serializers.
       serializeEqualMultiple(store, 'flags/k-flag', ['n3', 'nt', 'rdf'], serializer => {
-        serializer.setBase('http://example.com/')
+        serializer.setDefaultNamespace('http://example.com/')
         serializer.setFlags('k')
       })
     })

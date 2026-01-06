@@ -3,56 +3,83 @@ import { graph, st, sym } from '../../../../src'
 import { serializeEqualMultiple } from './utils/serialize-equal'
 
 describe('namespaces and prefixes', () => {
-  describe('with base', () => {
-    describe('should use default namespace when base is set', () => {
-      const statement = st(
-        sym('http://example.com/subject'),
-        sym('http://example.com/predicate'),
-        sym('http://example.com/object')
-      )
+  describe('should use base when set', () => {
+    const statement = st(
+      sym('http://example.com/subject'),
+      sym('http://example.com/predicate'),
+      sym('http://example.com/object')
+    )
 
-      const store = graph()
-      store.add(statement)
+    const store = graph()
+    store.add(statement)
 
-      // Prefixes are N3-specific, but semantic content should serialize correctly in all formats
-      serializeEqualMultiple(store, 'namespaces/with-base', ['n3', 'nt', 'rdf'], serializer => {
-        serializer.setBase('http://example.com/')
-      })
+    // Prefixes are N3-specific, but semantic content should serialize correctly in all formats
+    serializeEqualMultiple(store, 'namespaces/with-base', ['n3', 'nt', 'rdf'], serializer => {
+      serializer.setBase('http://example.com/')
+      serializer.setFlags('z') // Relative URIs in XML namespace declarations
     })
   })
 
-  describe('without base', () => {
-    describe('should not use default namespace when base is not set', () => {
-      const statement = st(
-        sym('http://example.com/subject'),
-        sym('http://example.com/predicate'),
-        sym('http://example.com/object')
-      )
+  describe('should not use base when not set', () => {
+    const statement = st(
+      sym('http://example.com/subject'),
+      sym('http://example.com/predicate'),
+      sym('http://example.com/object')
+    )
 
-      const store = graph()
-      store.add(statement)
+    const store = graph()
+    store.add(statement)
 
-      // Prefixes are N3-specific, but semantic content should serialize correctly in all formats
-      serializeEqualMultiple(store, 'namespaces/without-base', ['n3', 'nt', 'rdf'])
+    // Prefixes are N3-specific, but semantic content should serialize correctly in all formats
+    serializeEqualMultiple(store, 'namespaces/without-base', ['n3', 'nt', 'rdf'], serializer => {
+      serializer.setFlags('z') // Relative URIs in XML namespace declarations
     })
   })
 
-  describe('disable prefixes', () => {
-    describe('should disable default namespace with d flag', () => {
-      const statement = st(
-        sym('http://example.com/subject'),
-        sym('http://example.com/predicate'),
-        sym('http://example.com/object')
-      )
+  describe('should use default namespace when set', () => {
+    const statement = st(
+      sym('http://example.com/subject'),
+      sym('http://example.com/predicate'),
+      sym('http://example.com/object')
+    )
 
-      const store = graph()
-      store.add(statement)
+    const store = graph()
+    store.add(statement)
 
-      // Prefixes are N3-specific, but semantic content should serialize correctly in all formats
-      serializeEqualMultiple(store, 'namespaces/disable-default', ['n3', 'nt', 'rdf'], serializer => {
-        serializer.setBase('http://example.com/')
-        serializer.setFlags('d')
-      })
+    // Prefixes are N3-specific, but semantic content should serialize correctly in all formats
+    serializeEqualMultiple(store, 'namespaces/with-default-namespace', ['n3', 'nt', 'rdf'], serializer => {
+      serializer.setDefaultNamespace('http://example.com/')
+    })
+  })
+
+  describe('should not use default namespace when not set', () => {
+    const statement = st(
+      sym('http://example.com/subject'),
+      sym('http://example.com/predicate'),
+      sym('http://example.com/object')
+    )
+
+    const store = graph()
+    store.add(statement)
+
+    // Prefixes are N3-specific, but semantic content should serialize correctly in all formats
+    serializeEqualMultiple(store, 'namespaces/without-default-namespace', ['n3', 'nt', 'rdf'])
+  })
+
+  describe('should disable default namespace with d flag', () => {
+    const statement = st(
+      sym('http://example.com/subject'),
+      sym('http://example.com/predicate'),
+      sym('http://example.com/object')
+    )
+
+    const store = graph()
+    store.add(statement)
+
+    // Prefixes are N3-specific, but semantic content should serialize correctly in all formats
+    serializeEqualMultiple(store, 'namespaces/disable-default', ['n3', 'nt', 'rdf'], serializer => {
+      serializer.setDefaultNamespace('http://example.com/')
+      serializer.setFlags('d')
     })
   })
 
