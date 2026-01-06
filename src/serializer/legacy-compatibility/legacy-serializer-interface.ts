@@ -9,7 +9,7 @@ import { createXSD } from '../../xsd'
 
 interface LegacySerializerPrefixes extends Record<string, string> {}
 interface LegacySerializerNamespaces extends Record<string, string> {}
-interface LegacySerializerNamespacesUsed extends Record<string, boolean> {}
+export interface LegacySerializerNamespacesUsed extends Record<string, boolean> {}
 interface LegacySerializerIncoming extends Record<string, SubjectType[]> {}
 
 interface LegacyRootSubjectsStats {

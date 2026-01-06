@@ -11,7 +11,7 @@ import { TextTermConverter } from '../utils/text-term-converter'
 import { TreeBuilder } from '../utils/tree-builder'
 import { WriteStoreSerializer } from '../write-store-serializer'
 import { XMLSerializer } from '../xml-serializer'
-import { LegacySerializerInterface } from './legacy-serializer-interface'
+import { LegacySerializerInterface, LegacySerializerNamespacesUsed } from './legacy-serializer-interface'
 
 /**
  * @deprecated Use implementations of {@link AbstractSerializer} instead
@@ -32,7 +32,7 @@ export default function createSerializer(store: Formula) {
  * @see {@link XMLSerializer}
  * @see {@link JSONLDSerializer}
  */
-export class LegacyCompatibleSerializer extends AbstractSerializer implements LegacySerializerInterface {
+export class LegacyCompatibleSerializer implements LegacySerializerInterface {
   prefixchars = AbstractSerializer.prefixchars
   validPrefix = AbstractSerializer.validPrefix
 
@@ -44,27 +44,148 @@ export class LegacyCompatibleSerializer extends AbstractSerializer implements Le
 
   incoming: LegacySerializerInterface['incoming'] | null
 
-  protected textConverter = new TextTermConverter(this)
-  protected treeBuilder = new TreeBuilder(this)
+  private internalSerializer: InternalSerializer
+  protected textConverter: TextTermConverter
+  protected treeBuilder: TreeBuilder
+
+  get flags() {
+    return this.internalSerializer.flags
+  }
+  set flags(value: LegacySerializerInterface['flags']) {
+    this.internalSerializer.flags = value
+  }
+
+  get base() {
+    return this.internalSerializer.base
+  }
+  set base(value: LegacySerializerInterface['base']) {
+    this.internalSerializer.base = value
+  }
+
+  get defaultNamespace() {
+    return this.internalSerializer.defaultNamespace
+  }
+  set defaultNamespace(value: LegacySerializerInterface['defaultNamespace']) {
+    this.internalSerializer.defaultNamespace = value
+  }
+
+  get prefixes() {
+    return this.internalSerializer.prefixes
+  }
+  set prefixes(value: LegacySerializerInterface['prefixes']) {
+    this.internalSerializer.prefixes = value
+  }
+
+  get namespaces() {
+    return this.internalSerializer.namespaces
+  }
+  set namespaces(value: LegacySerializerInterface['namespaces']) {
+    this.internalSerializer.namespaces = value
+  }
+
+  get namespacesUsed() {
+    // Convert Map<string, number> to Record<string, boolean>
+    const namespacesUsed: LegacySerializerNamespacesUsed = {}
+    for (const [namespace, count] of this.internalSerializer.namespacesUsed) {
+      if (count > 0) {
+        namespacesUsed[namespace] = true
+      }
+    }
+    return namespacesUsed
+  }
+  set namespacesUsed(value: LegacySerializerInterface['namespacesUsed']) {
+    const namespacesUsedMap = new Map<string, number>()
+    for (const namespace in value) {
+      if (value[namespace]) {
+        namespacesUsedMap.set(namespace, 1)
+      }
+    }
+    this.internalSerializer.namespacesUsed = namespacesUsedMap
+  }
+
+  get formulas() {
+    return this.internalSerializer.formulas
+  }
+  set formulas(value: LegacySerializerInterface['formulas']) {
+    this.internalSerializer.formulas = value
+  }
+
+  get store() {
+    return this.internalSerializer.store
+  }
+  set store(value: LegacySerializerInterface['store']) {
+    this.internalSerializer.store = value
+  }
+
+  get rdfFactory() {
+    return this.internalSerializer.rdfFactory
+  }
+  set rdfFactory(value: LegacySerializerInterface['rdfFactory']) {
+    this.internalSerializer.rdfFactory = value
+  }
+
+  get xsd() {
+    return this.internalSerializer.xsd
+  }
+  set xsd(value: LegacySerializerInterface['xsd']) {
+    this.internalSerializer.xsd = value
+  }
 
   constructor(store: Formula) {
-    super(store)
-
+    this.internalSerializer = new InternalSerializer(store)
+    this.textConverter = new TextTermConverter(this.internalSerializer)
+    this.treeBuilder = new TreeBuilder(this.internalSerializer)
     this.incoming = null
   }
 
-  serialize(statements: Statement[]): string {
-    throw new Error(
-      'LegacyCompatibleSerializer is not implemented, please use a concrete implementation of AbstractSerializer instead'
-    )
+  setBase(base?: string | null): this {
+    this.internalSerializer.setBase(base)
+    return this
+  }
+
+  setFlags(flags?: string): this {
+    this.internalSerializer.setFlags(flags)
+    return this
+  }
+
+  setNamespaces(namespaces: LegacySerializerInterface['namespaces']): this {
+    this.internalSerializer.setNamespaces(namespaces)
+    return this
+  }
+
+  setPrefix(prefix: string, uri: string): void {
+    this.internalSerializer.setPrefix(prefix, uri)
+  }
+
+  suggestPrefix(prefix: string, uri: string): void {
+    this.internalSerializer.suggestPrefix(prefix, uri)
+  }
+
+  suggestNamespaces(namespaces: LegacySerializerInterface['namespaces']): this {
+    this.internalSerializer.suggestNamespaces(namespaces)
+    return this
+  }
+
+  toStr(x: Node): string {
+    return this.internalSerializer.toStr(x)
+  }
+
+  fromStr(s: string): Node {
+    return this.internalSerializer.fromStr(s)
+  }
+
+  checkIntegrity(): void {
+    this.internalSerializer.checkIntegrity()
+  }
+
+  makeUpPrefix(uri: string): string {
+    return this.internalSerializer.makeUpPrefix(uri)
   }
 
   private createSerializer<T extends AbstractSerializer>(SerializerClass: new (store: Formula) => T): T {
     const serializer = new SerializerClass(this.store)
 
-    // Do not copy LegacyCompatibleSerializer specific properties
-    const { textConverter, _notQNameChars, _notNameChars, validPrefix, forbidden1, forbidden3, ...propsToCopy } = this
-    Object.assign(serializer, propsToCopy)
+    Object.assign(serializer, this.internalSerializer)
 
     return serializer
   }
@@ -92,6 +213,10 @@ export class LegacyCompatibleSerializer extends AbstractSerializer implements Le
 
   statementsToN3(sts: Statement[]) {
     const serializer = this.createN3Serializer()
+
+    if (this.base && !this.defaultNamespace) {
+      serializer.setDefaultNamespace(this.base + '#')
+    }
     return serializer.serialize(sts)
   }
 
@@ -143,5 +268,11 @@ export class LegacyCompatibleSerializer extends AbstractSerializer implements Le
     const result = this.treeBuilder.rootSubjects(sts)
     this.incoming = result.incoming
     return result
+  }
+}
+
+class InternalSerializer extends AbstractSerializer {
+  serialize(statements: Statement[]): string {
+    throw new Error('InternalSerializer should not be serialized directly')
   }
 }
